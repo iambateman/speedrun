@@ -86,5 +86,8 @@ class RunArtisanCommand extends Command
     {
         $shortened_response = str($this->response)->remove('php artisan');
         Artisan::call($shortened_response);
+        $output = Artisan::output();
+        $this->comment($output);
+
     }
 }
