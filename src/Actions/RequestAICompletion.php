@@ -6,10 +6,9 @@ use Iambateman\Speedrun\Exceptions\ConfusedLLMException;
 use Iambateman\Speedrun\Exceptions\NoAPIKeyException;
 use Iambateman\Speedrun\Speedrun;
 use Illuminate\Support\Facades\Http;
-use OpenAI\Laravel\Facades\OpenAI;
 
-class RequestAICompletion {
-
+class RequestAICompletion
+{
     protected string $model;
 
     protected string $prompt;
@@ -32,7 +31,7 @@ class RequestAICompletion {
 
         $token = Speedrun::getKey();
 
-        if (!$token) {
+        if (! $token) {
             throw new NoAPIKeyException('No API Key Found');
         }
 
@@ -41,22 +40,21 @@ class RequestAICompletion {
             ->acceptJson()
             ->timeout(30)
             ->withBody(json_encode(
-                    [
-                        'model' => $this->model,
-                        'messages' => [
-                            ['role' => 'user', 'content' => $this->prompt],
-                        ],
-                    ])
+                [
+                    'model' => $this->model,
+                    'messages' => [
+                        ['role' => 'user', 'content' => $this->prompt],
+                    ],
+                ])
             )
-            ->post("https://api.openai.com/v1/chat/completions");
+            ->post('https://api.openai.com/v1/chat/completions');
 
-        if( $result->status() != 200) {
-            throw new ConfusedLLMException("The LLM could not connect properly. Check your API key.");
+        if ($result->status() != 200) {
+            throw new ConfusedLLMException('The LLM could not connect properly. Check your API key.');
         }
 
         $object = json_decode($result->body());
 
         return $object->choices[0]->message->content;
     }
-
 }

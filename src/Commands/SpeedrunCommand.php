@@ -2,7 +2,6 @@
 
 namespace Iambateman\Speedrun\Commands;
 
-use Iambateman\Speedrun\Actions\RequestAICompletion;
 use Iambateman\Speedrun\Exceptions\NoAPIKeyException;
 use Iambateman\Speedrun\Helpers\Helpers;
 use Iambateman\Speedrun\Speedrun;
