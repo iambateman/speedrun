@@ -2,22 +2,22 @@
 
 namespace Iambateman\Speedrun\Commands;
 
-use Iambateman\Speedrun\Speedrun;
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Artisan;
+use App\Console\Kernel;
 use Iambateman\Speedrun\Actions\RequestAICompletion;
 use Iambateman\Speedrun\Exceptions\ConfusedLLMException;
 use Iambateman\Speedrun\Helpers\Helpers;
-use Iambateman\Speedrun\Exceptions\ProductionException;
-use App\Console\Kernel;
+use Iambateman\Speedrun\Speedrun;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
 
-class RunArtisanCommand extends Command {
-
+class RunArtisanCommand extends Command
+{
     public $signature = 'speedrun:run-artisan-command {input}';
 
     public $description = 'Run an artisan command';
 
     protected string $prompt = '';
+
     protected string $response;
 
     public function handle(): int
@@ -35,7 +35,7 @@ class RunArtisanCommand extends Command {
         if (Speedrun::doubleConfirm()) {
             if ($this->confirm("run {$this->response}?")) {
                 $this->runRequestedCommand();
-            };
+            }
         } else {
             $this->runRequestedCommand();
         }
@@ -45,7 +45,7 @@ class RunArtisanCommand extends Command {
 
     public function getApplicationCommands(): ?string
     {
-        if (!config('speedrun.includeAppCommands')) {
+        if (! config('speedrun.includeAppCommands')) {
             return false;
         }
 
@@ -53,7 +53,7 @@ class RunArtisanCommand extends Command {
 
         $app_command_names = collect($commands)
             ->keys()
-            ->filter(fn($command) => str($command)->startsWith('app:'))
+            ->filter(fn ($command) => str($command)->startsWith('app:'))
             ->implode(', ');
 
         if ($app_command_names) {
@@ -66,7 +66,7 @@ class RunArtisanCommand extends Command {
 
     protected function checkResponseValidity()
     {
-        if (str($this->response)->startsWith('unsure') || !str($this->response)->startsWith('php artisan')) {
+        if (str($this->response)->startsWith('unsure') || ! str($this->response)->startsWith('php artisan')) {
             $this->reRunWithBetterModel();
             info('went with GPT-4');
 
@@ -87,5 +87,4 @@ class RunArtisanCommand extends Command {
         $shortened_response = str($this->response)->remove('php artisan');
         Artisan::call($shortened_response);
     }
-
 }

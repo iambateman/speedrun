@@ -2,20 +2,22 @@
 
 namespace Iambateman\Speedrun\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Support\Stringable;
 use Iambateman\Speedrun\Exceptions\NoAPIKeyException;
 use Iambateman\Speedrun\Helpers\Helpers;
 use Iambateman\Speedrun\Speedrun;
+use Illuminate\Console\Command;
+use Illuminate\Support\Stringable;
 
-class SpeedrunCommand extends Command {
-
+class SpeedrunCommand extends Command
+{
     public $signature = 'speedrun {input*}';
 
     public $description = 'Get GPT commands from natural language';
 
     protected Stringable $inputText;
+
     protected string $prompt;
+
     protected string $response;
 
     public function handle(): int
@@ -37,19 +39,17 @@ class SpeedrunCommand extends Command {
         return self::SUCCESS;
     }
 
-
     protected function stringifyInput()
     {
         $this->inputText = str(
-            join(' ', $this->argument('input'))
+            implode(' ', $this->argument('input'))
         );
     }
 
     protected function confirmAPIKey()
     {
-        if(!Speedrun::getKey()) {
+        if (! Speedrun::getKey()) {
             throw new NoAPIKeyException('Please add OPENAI_API_KEY to .env');
         }
     }
-
 }

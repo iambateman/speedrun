@@ -6,10 +6,9 @@ use Iambateman\Speedrun\Commands\InstallComposerPackage;
 use Iambateman\Speedrun\Commands\RunArtisanCommand;
 use Iambateman\Speedrun\Commands\RunHelpCommand;
 use Iambateman\Speedrun\Commands\RunQueryCommand;
-use Iambateman\Speedrun\Commands\TestCommand;
+use Iambateman\Speedrun\Commands\SpeedrunCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Iambateman\Speedrun\Commands\SpeedrunCommand;
 
 class SpeedrunServiceProvider extends PackageServiceProvider
 {
@@ -29,6 +28,6 @@ class SpeedrunServiceProvider extends PackageServiceProvider
                 RunArtisanCommand::class,
                 RunHelpCommand::class,
                 RunQueryCommand::class,
-            ]);;
+            ]);
     }
 }

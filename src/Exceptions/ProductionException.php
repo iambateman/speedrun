@@ -7,5 +7,4 @@ use Symfony\Component\Console\Exception\ExceptionInterface;
 
 class ProductionException extends Exception implements ExceptionInterface
 {
-
 }

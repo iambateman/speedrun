@@ -9,8 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 
-class Helpers {
-
+class Helpers
+{
     public static function dieInProduction()
     {
         if (Speedrun::dieInProduction() && app()->isProduction()) {
@@ -35,7 +35,7 @@ class Helpers {
                 if (class_exists($class)) {
                     $reflection = new \ReflectionClass($class);
                     $valid = $reflection->isSubclassOf(Model::class) &&
-                        !$reflection->isAbstract();
+                        ! $reflection->isAbstract();
                 }
 
                 return $valid;
@@ -43,5 +43,4 @@ class Helpers {
 
         return $models->values();
     }
-
 }

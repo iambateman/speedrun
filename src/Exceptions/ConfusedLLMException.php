@@ -7,5 +7,4 @@ use Symfony\Component\Console\Exception\ExceptionInterface;
 
 class ConfusedLLMException extends Exception implements ExceptionInterface
 {
-
 }

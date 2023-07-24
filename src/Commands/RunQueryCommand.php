@@ -2,21 +2,20 @@
 
 namespace Iambateman\Speedrun\Commands;
 
-use Illuminate\Console\Command;
 use Iambateman\Speedrun\Actions\RequestAICompletion;
 use Iambateman\Speedrun\Exceptions\ConfusedLLMException;
 use Iambateman\Speedrun\Helpers\Helpers;
 use Iambateman\Speedrun\Speedrun;
-use Iambateman\Speedrun\Exceptions\ProductionException;
-use App\Console\Kernel;
+use Illuminate\Console\Command;
 
-class RunQueryCommand extends Command {
-
+class RunQueryCommand extends Command
+{
     public $signature = 'speedrun:run-query-command {input}';
 
     public $description = 'Run a query';
 
     protected string $prompt;
+
     protected string $response;
 
     public function handle(): int
@@ -34,7 +33,7 @@ class RunQueryCommand extends Command {
         if (Speedrun::doubleConfirm()) {
             if ($this->confirm("run {$this->response}?")) {
                 $this->runRequestedCommand();
-            };
+            }
         } else {
             $this->runRequestedCommand();
         }
@@ -45,9 +44,9 @@ class RunQueryCommand extends Command {
     protected function getModels()
     {
         $models = Helpers::getModels();
+
         return " Available models to query are {$models->implode(', ')}.";
     }
-
 
     protected function checkResponseValidity()
     {
@@ -82,5 +81,4 @@ EOT;
             $this->comment($row);
         }
     }
-
 }

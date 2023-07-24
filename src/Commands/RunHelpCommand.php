@@ -4,13 +4,14 @@ namespace Iambateman\Speedrun\Commands;
 
 use Illuminate\Console\Command;
 
-class RunHelpCommand extends Command {
-
+class RunHelpCommand extends Command
+{
     public $signature = 'speedrun:run-help-command {input}';
 
     public $description = 'Help with the Speedrun commands';
 
     protected string $prompt;
+
     protected string $response;
 
     public function handle(): int
@@ -20,6 +21,4 @@ class RunHelpCommand extends Command {
 
         return self::SUCCESS;
     }
-
-
 }

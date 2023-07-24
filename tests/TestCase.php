@@ -2,9 +2,9 @@
 
 namespace Iambateman\Speedrun\Tests;
 
+use Iambateman\Speedrun\SpeedrunServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Iambateman\Speedrun\SpeedrunServiceProvider;
 
 class TestCase extends Orchestra
 {

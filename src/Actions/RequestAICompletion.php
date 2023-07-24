@@ -5,9 +5,10 @@ namespace Iambateman\Speedrun\Actions;
 use Iambateman\Speedrun\Speedrun;
 use OpenAI\Laravel\Facades\OpenAI;
 
-class RequestAICompletion {
-
+class RequestAICompletion
+{
     protected string $model;
+
     protected string $prompt;
 
     public function __construct(string $prompt, string $model = null)
@@ -15,7 +16,7 @@ class RequestAICompletion {
         $this->prompt = $prompt;
 
         $this->model = ($model) ? $model : Speedrun::getModel();
-        
+
     }
 
     public static function from(...$arguments): string
@@ -34,5 +35,4 @@ class RequestAICompletion {
 
         return $result['choices'][0]['message']['content'];
     }
-
 }
