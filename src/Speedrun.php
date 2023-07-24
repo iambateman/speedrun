@@ -27,7 +27,7 @@ class Speedrun
      */
     public static function getKey(): ?string
     {
-        return env('OPENAI_API_KEY', '');
+        return env('SPEEDRUN_OPENAI_API_KEY', '');
     }
 
     public static function dieInProduction(): bool
