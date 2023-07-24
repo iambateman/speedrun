@@ -13,17 +13,11 @@ Instead of typing `php artisan make:model Keyword -m`, use Speedrun to remember 
 composer require iambateman/speedrun
 ```
 
-
-```bash
-# (Optionally) publish config.
-php artisan vendor:publish --tag="speedrun-config"
-```
-
-
 ```dotenv
-# Make sure you set an API Key in your .env
-OPENAI_API_KEY=sk-...
+# Set an OpenAI API Key in your .env
+SPEEDRUN_OPENAI_API_KEY=sk-...
 ```
+
 
 
 
@@ -87,6 +81,13 @@ Please review [our security policy](../../security/policy) on how to report secu
 - Speedrun: [iambateman](https://github.com/iambateman)
 - None of this would be possible without the wonderful work of so many people on Artisan, Tinker, Composer, and Laravel in general. Thank you for what you do.
 - [All Contributors](../../contributors)
+
+## Config
+Right now there is very limited config, but you can publish if you want:
+```bash
+# (Optionally) publish config.
+php artisan vendor:publish --tag="speedrun-config"
+```
 
 ## License
 

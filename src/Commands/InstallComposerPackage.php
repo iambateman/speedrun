@@ -59,6 +59,10 @@ class InstallComposerPackage extends Command
 
     protected function runRequestedCommand()
     {
-        exec("composer require {$this->package}");
+        exec("composer require {$this->package}", $output);
+
+        foreach ($output as $row) {
+            $this->comment($row);
+        }
     }
 }
