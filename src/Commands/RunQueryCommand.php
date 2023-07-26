@@ -9,10 +9,9 @@ use Iambateman\Speedrun\Speedrun;
 use Iambateman\Speedrun\Traits\GetModelRelationshipsTrait;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
-use Nette\Utils\Reflection;
 
-class RunQueryCommand extends Command {
-
+class RunQueryCommand extends Command
+{
     use GetModelRelationshipsTrait;
 
     public $signature = 'speedrun:run-query-command {input}';
@@ -26,12 +25,12 @@ class RunQueryCommand extends Command {
     public function handle(): int
     {
         Helpers::dieInProduction();
-        
+
         $this->prompt = "You are a Laravel developer building a valid Eloquent query which does the following: '{$this->argument('input')}'. Respond only with the query to be run. Do not assign to a variable. If you aren't sure which query to run, say 'unsure'.";
         $this->prompt .= "\n";
         $this->prompt .= $this->getModels();
 
-//        dd($this->prompt);
+        //        dd($this->prompt);
         $this->response = RequestAICompletion::from($this->prompt);
 
         $this->checkResponseValidity();
@@ -73,7 +72,6 @@ class RunQueryCommand extends Command {
     }
 
     /**
-     * @param $model
      * @return string
      *
      * Get the model's relationship methods and return them as a string
@@ -85,6 +83,7 @@ class RunQueryCommand extends Command {
         return collect($modelReflection->reflected->getMethods())
             ->filter(function (\ReflectionMethod $method) {
                 $returnType = $method->getReturnType();
+
                 return in_array($returnType, [
                     'Illuminate\Database\Eloquent\Relations\HasMany',
                     'Illuminate\Database\Eloquent\Relations\HasManyThrough',
@@ -99,7 +98,7 @@ class RunQueryCommand extends Command {
                     'Illuminate\Database\Eloquent\Relations\Pivot',
                 ]);
             })
-            ->map(fn(\ReflectionMethod $method) => $method->name . '()')
+            ->map(fn (\ReflectionMethod $method) => $method->name.'()')
             ->implode(', ');
 
     }
@@ -109,14 +108,14 @@ class RunQueryCommand extends Command {
         $model = $this->getModel($modelClass);
         $table = $this->getModelTable($model);
 
-        return collect($table->getColumns())->map(fn($column) => $column->getName())->keys();
+        return collect($table->getColumns())->map(fn ($column) => $column->getName())->keys();
     }
 
     protected function checkResponseValidity()
     {
         // At first, try GPT-4
         if (str($this->response)->startsWith('unsure')) {
-            $this->info("Trying query with GPT-4");
+            $this->info('Trying query with GPT-4');
             $this->reRunWithBetterModel();
 
             // Then just fail.
@@ -145,5 +144,4 @@ EOT;
             $this->comment($row);
         }
     }
-
 }

@@ -68,7 +68,7 @@ class RunArtisanCommand extends Command
     {
         if (str($this->response)->startsWith('unsure') || ! str($this->response)->startsWith('php artisan')) {
             $this->reRunWithBetterModel();
-            $this->info("Trying query with GPT-4");
+            $this->info('Trying query with GPT-4');
 
             // Then just fail.
             if (str($this->response)->startsWith('unsure')) {

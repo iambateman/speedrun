@@ -52,8 +52,10 @@ class Helpers
      */
     public static function invade($obj)
     {
-        return new class($obj) {
+        return new class($obj)
+        {
             public $obj;
+
             public $reflected;
 
             public function __construct($obj)

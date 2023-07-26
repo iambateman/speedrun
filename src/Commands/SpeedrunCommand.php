@@ -46,8 +46,8 @@ class SpeedrunCommand extends Command
             implode(' ', $this->argument('input'))
         );
 
-        if($this->inputText == '') {
-            $this->inputText = str($this->ask("how can I help you?"));
+        if ($this->inputText == '') {
+            $this->inputText = str($this->ask('how can I help you?'));
         }
     }
 

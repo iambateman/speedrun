@@ -42,6 +42,6 @@ class IndicateDemoPresenceCommand extends Command
 
         usleep($this->sleepy_time);
 
-        $this->$type(">>>>" . str_repeat(' ', $padding) . $text . str_repeat(' ', $padding));
+        $this->$type('>>>>'.str_repeat(' ', $padding).$text.str_repeat(' ', $padding));
     }
 }

@@ -32,8 +32,8 @@ class SpeedrunServiceProvider extends PackageServiceProvider
                 RunHelpCommand::class,
                 RunQueryCommand::class,
                 DemoCommand::class,
-                IndicateDemoPresenceCommand::class
-            ])->hasInstallCommand(function(InstallCommand $command) {
+                IndicateDemoPresenceCommand::class,
+            ])->hasInstallCommand(function (InstallCommand $command) {
                 $command->call('speedrun:indicate-demo-presence');
             });
     }
