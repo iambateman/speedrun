@@ -11,11 +11,11 @@ use Illuminate\Support\Str;
 use ReflectionException;
 use Throwable;
 
-trait GetModelRelationshipsTrait
-{
+trait GetModelRelationshipsTrait {
+
     protected function getModel(string $model): ?string
     {
-        if (! class_exists($model)) {
+        if (!class_exists($model)) {
             return null;
         }
 
@@ -45,12 +45,12 @@ trait GetModelRelationshipsTrait
         $guessedRelationshipName = Str::of($column->getName())->beforeLast('_id');
         $hasRelationship = $modelReflection->reflected->hasMethod($guessedRelationshipName);
 
-        if (! $hasRelationship) {
+        if (!$hasRelationship) {
             $guessedRelationshipName = $guessedRelationshipName->camel();
             $hasRelationship = $modelReflection->reflected->hasMethod($guessedRelationshipName);
         }
 
-        if (! $hasRelationship) {
+        if (!$hasRelationship) {
             return null;
         }
 
@@ -58,8 +58,8 @@ trait GetModelRelationshipsTrait
             $type = $modelReflection->reflected->getMethod($guessedRelationshipName)->getReturnType();
 
             if (
-                (! $type) ||
-                (! method_exists($type, 'getName')) ||
+                (!$type) ||
+                (!method_exists($type, 'getName')) ||
                 ($type->getName() !== BelongsTo::class)
             ) {
                 return null;
@@ -79,7 +79,7 @@ trait GetModelRelationshipsTrait
             return Str::plural($tableName);
         }
 
-        if (! Schema::hasTable($tableName)) {
+        if (!Schema::hasTable($tableName)) {
             return null;
         }
 
@@ -126,64 +126,57 @@ trait GetModelRelationshipsTrait
         foreach ($table->getColumns() as $column) {
             $columns[] = $column->getName();
         }
-        return implode(', ',    $columns);
+        return implode(', ', $columns);
     }
 
+//    protected function getRelationshipSchema(string $model): ?string
+//    {
+//        $model = $this->getModel($model);
+//
+//        if (blank($model)) {
+//            return null;
+//        }
+//
+//        $table = $this->getModelTable($model);
+//
+//        if (blank($table)) {
+//            return null;
+//        }
+//
+//        $components = [];
+//
+//        foreach ($table->getColumns() as $column) {
+//            if ($column->getAutoincrement()) {
+//                continue;
+//            }
+//
+//            $columnName = $column->getName();
+//
+//            if (Str::of($columnName)->is([
+//                'created_at',
+//                'deleted_at',
+//                'updated_at',
+//                '*_token',
+//            ])) {
+//                continue;
+//            }
+//
+//            $componentData = [];
+//
+//            if (Str::of($columnName)->endsWith('_id')) {
+//                $guessedRelationshipName = $this->guessBelongsToRelationshipName($column, $model);
+//
+//                if (filled($guessedRelationshipName)) {
+//                    $guessedRelationshipTitleColumnName = $this->guessBelongsToRelationshipTitleColumnName($column, app($model)->{$guessedRelationshipName}()->getModel()::class);
+//
+//                    $componentData['relationship'] = ["'{$guessedRelationshipName}", "{$guessedRelationshipTitleColumnName}'"];
+//                }
+//            }
+//
+//            $components[$columnName] = $componentData;
+//        }
+//
+//        return $output;
+//    }
 
-
-    /**
-     * FROM THE CANGENERATEFORMS TRAIT
-     */
-
-        protected function getRelationshipSchema(string $model): ?string
-    {
-        $model = $this->getModel($model);
-
-        if (blank($model)) {
-            return null;
-        }
-
-        $table = $this->getModelTable($model);
-
-        if (blank($table)) {
-            return null;
-        }
-
-        $components = [];
-
-        foreach ($table->getColumns() as $column) {
-            if ($column->getAutoincrement()) {
-                continue;
-            }
-
-            $columnName = $column->getName();
-
-            if (Str::of($columnName)->is([
-                'created_at',
-                'deleted_at',
-                'updated_at',
-                '*_token',
-            ])) {
-                continue;
-            }
-
-            $componentData = [];
-
-            if (Str::of($columnName)->endsWith('_id')) {
-                $guessedRelationshipName = $this->guessBelongsToRelationshipName($column, $model);
-
-                if (filled($guessedRelationshipName)) {
-                    $guessedRelationshipTitleColumnName = $this->guessBelongsToRelationshipTitleColumnName($column, app($model)->{$guessedRelationshipName}()->getModel()::class);
-
-                    $componentData['relationship'] = ["'{$guessedRelationshipName}", "{$guessedRelationshipTitleColumnName}'"];
-                }
-            }
-            
-            $components[$columnName] = $componentData;
-        }
-
-        dd($components);
-
-        return $output;
-    }
 }

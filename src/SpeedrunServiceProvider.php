@@ -2,6 +2,7 @@
 
 namespace Iambateman\Speedrun;
 
+use Iambateman\Speedrun\Commands\DemoCommand;
 use Iambateman\Speedrun\Commands\InstallComposerPackage;
 use Iambateman\Speedrun\Commands\RunArtisanCommand;
 use Iambateman\Speedrun\Commands\RunHelpCommand;
@@ -28,6 +29,7 @@ class SpeedrunServiceProvider extends PackageServiceProvider
                 RunArtisanCommand::class,
                 RunHelpCommand::class,
                 RunQueryCommand::class,
+                DemoCommand::class
             ]);
     }
 }

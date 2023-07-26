@@ -57,13 +57,16 @@ class RunQueryCommand extends Command {
 
             $subprompt .= " Model: {$model}.";
 
+            if ($relationships = $this->getRelationships($model)) {
+                $subprompt .= " Relationships: {$relationships}";
+            }
+
             if ($columnsString = $this->getModelFields($model)) {
                 $subprompt .= " Fields: {$columnsString}.";
             }
 
-            if ($relationships = $this->getRelationships($model)) {
-                $subprompt .= " Relationships: {$relationships}\n\n";
-            }
+            $subprompt .= "\n\n";
+
         }
 
         return $subprompt;
@@ -113,8 +116,8 @@ class RunQueryCommand extends Command {
     {
         // At first, try GPT-4
         if (str($this->response)->startsWith('unsure')) {
-            $this->reRunWithBetterModel();
             $this->info("Trying query with GPT-4");
+            $this->reRunWithBetterModel();
 
             // Then just fail.
             if (str($this->response)->startsWith('unsure')) {
