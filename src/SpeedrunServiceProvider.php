@@ -3,11 +3,13 @@
 namespace Iambateman\Speedrun;
 
 use Iambateman\Speedrun\Commands\DemoCommand;
+use Iambateman\Speedrun\Commands\IndicateDemoPresenceCommand;
 use Iambateman\Speedrun\Commands\InstallComposerPackage;
 use Iambateman\Speedrun\Commands\RunArtisanCommand;
 use Iambateman\Speedrun\Commands\RunHelpCommand;
 use Iambateman\Speedrun\Commands\RunQueryCommand;
 use Iambateman\Speedrun\Commands\SpeedrunCommand;
+use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -29,7 +31,10 @@ class SpeedrunServiceProvider extends PackageServiceProvider
                 RunArtisanCommand::class,
                 RunHelpCommand::class,
                 RunQueryCommand::class,
-                DemoCommand::class
-            ]);
+                DemoCommand::class,
+                IndicateDemoPresenceCommand::class
+            ])->hasInstallCommand(function(InstallCommand $command) {
+                $command->call('speedrun:indicate-demo-presence');
+            });
     }
 }

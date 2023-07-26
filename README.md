@@ -18,6 +18,8 @@ composer require iambateman/speedrun
 SPEEDRUN_OPENAI_API_KEY=sk-...
 ```
 
+Once installed, run `php artisan speedrun:demo` 
+
 
 
 
