@@ -10,7 +10,7 @@ use Illuminate\Support\Stringable;
 
 class SpeedrunCommand extends Command
 {
-    public $signature = 'speedrun {input*}';
+    public $signature = 'speedrun {input?*}';
 
     public $description = 'Get GPT commands from natural language';
 
@@ -45,6 +45,10 @@ class SpeedrunCommand extends Command
         $this->inputText = str(
             implode(' ', $this->argument('input'))
         );
+
+        if($this->inputText == '') {
+            $this->inputText = str($this->ask("how can I help you?"));
+        }
     }
 
     protected function confirmAPIKey()

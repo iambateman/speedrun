@@ -33,7 +33,9 @@ php artisan speedrun how many articles are there
 
 sr how many articles are there
 
-# Note: no punctuation.
+# You can write the worst Eloquent queries ever
+sr "query family(12)->members get name"
+
 
 ```
 

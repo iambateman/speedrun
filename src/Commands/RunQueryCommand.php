@@ -6,10 +6,15 @@ use Iambateman\Speedrun\Actions\RequestAICompletion;
 use Iambateman\Speedrun\Exceptions\ConfusedLLMException;
 use Iambateman\Speedrun\Helpers\Helpers;
 use Iambateman\Speedrun\Speedrun;
+use Iambateman\Speedrun\Traits\GetModelRelationshipsTrait;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
+use Nette\Utils\Reflection;
 
-class RunQueryCommand extends Command
-{
+class RunQueryCommand extends Command {
+
+    use GetModelRelationshipsTrait;
+
     public $signature = 'speedrun:run-query-command {input}';
 
     public $description = 'Run a query';
@@ -21,11 +26,12 @@ class RunQueryCommand extends Command
     public function handle(): int
     {
         Helpers::dieInProduction();
-
-        $this->prompt = "You are helping a Laravel developer build an eloquent query from natural language. Respond only with the query which should be run. If you aren't sure which query to run, say 'unsure'.";
+        
+        $this->prompt = "You are a Laravel developer building a valid Eloquent query which does the following: '{$this->argument('input')}'. Respond only with the query to be run. Do not assign to a variable. If you aren't sure which query to run, say 'unsure'.";
+        $this->prompt .= "\n";
         $this->prompt .= $this->getModels();
-        $this->prompt .= " The developer requested a query which does the following: {$this->argument('input')}";
 
+//        dd($this->prompt);
         $this->response = RequestAICompletion::from($this->prompt);
 
         $this->checkResponseValidity();
@@ -43,9 +49,64 @@ class RunQueryCommand extends Command
 
     protected function getModels()
     {
+        $subprompt = " Below are all the application's Eloquent Models, along with the fields and relationships for each model. Only use these models, relationships, and fields to generate the query.";
+        $subprompt .= "\n";
         $models = Helpers::getModels();
 
-        return " Available models to query are {$models->implode(', ')}.";
+        foreach ($models as $model) {
+
+            $subprompt .= " Model: {$model}.";
+
+            if ($columnsString = $this->getModelFields($model)) {
+                $subprompt .= " Fields: {$columnsString}.";
+            }
+
+            if ($relationships = $this->getRelationships($model)) {
+                $subprompt .= " Relationships: {$relationships}\n\n";
+            }
+        }
+
+        return $subprompt;
+    }
+
+    /**
+     * @param $model
+     * @return string
+     *
+     * Get the model's relationship methods and return them as a string
+     */
+    protected function getRelationships($model): string
+    {
+        $modelReflection = Helpers::invade(app($model));
+
+        return collect($modelReflection->reflected->getMethods())
+            ->filter(function (\ReflectionMethod $method) {
+                $returnType = $method->getReturnType();
+                return in_array($returnType, [
+                    'Illuminate\Database\Eloquent\Relations\HasMany',
+                    'Illuminate\Database\Eloquent\Relations\HasManyThrough',
+                    'Illuminate\Database\Eloquent\Relations\BelongsTo',
+                    'Illuminate\Database\Eloquent\Relations\BelongsToMany',
+                    'Illuminate\Database\Eloquent\Relations\HasOne',
+                    'Illuminate\Database\Eloquent\Relations\HasOneThrough',
+                    'Illuminate\Database\Eloquent\Relations\MorphMany',
+                    'Illuminate\Database\Eloquent\Relations\MorphOne',
+                    'Illuminate\Database\Eloquent\Relations\MorphOneOrMany',
+                    'Illuminate\Database\Eloquent\Relations\MorphTo',
+                    'Illuminate\Database\Eloquent\Relations\Pivot',
+                ]);
+            })
+            ->map(fn(\ReflectionMethod $method) => $method->name . '()')
+            ->implode(', ');
+
+    }
+
+    protected function getModelSchema(string $modelClass): Collection
+    {
+        $model = $this->getModel($modelClass);
+        $table = $this->getModelTable($model);
+
+        return collect($table->getColumns())->map(fn($column) => $column->getName())->keys();
     }
 
     protected function checkResponseValidity()
@@ -53,7 +114,7 @@ class RunQueryCommand extends Command
         // At first, try GPT-4
         if (str($this->response)->startsWith('unsure')) {
             $this->reRunWithBetterModel();
-            info('went with GPT-4');
+            $this->info("Trying query with GPT-4");
 
             // Then just fail.
             if (str($this->response)->startsWith('unsure')) {
@@ -81,4 +142,5 @@ EOT;
             $this->comment($row);
         }
     }
+
 }
