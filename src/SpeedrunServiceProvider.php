@@ -13,8 +13,8 @@ use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
-class SpeedrunServiceProvider extends PackageServiceProvider
-{
+class SpeedrunServiceProvider extends PackageServiceProvider {
+
     public function configurePackage(Package $package): void
     {
         /*
@@ -32,9 +32,17 @@ class SpeedrunServiceProvider extends PackageServiceProvider
                 RunHelpCommand::class,
                 RunQueryCommand::class,
                 DemoCommand::class,
-                IndicateDemoPresenceCommand::class,
+                IndicateDemoPresenceCommand::class
             ])->hasInstallCommand(function (InstallCommand $command) {
-                $command->call('speedrun:indicate-demo-presence');
+                $command->endWith(function (InstallCommand $command) {
+                    $command->line('');
+                    $command->info('DEMO');
+                    $command->line('');
+                    $command->line('To see how Speedrun works');
+                    $command->line('with a quick demo, type:');
+                    $command->line('php artisan speedrun:demo ', 'warn');
+                });
             });
     }
+
 }
