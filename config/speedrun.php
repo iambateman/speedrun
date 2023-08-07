@@ -36,4 +36,16 @@ return [
     |
     */
     'dieInProduction' => true,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Open on make
+    |--------------------------------------------------------------------------
+    |
+    | It's convenient to open some files in your editor by default.
+    |
+    */
+    'openOnMake' => env('OPEN_ON_MAKE', true),
+
+    'codeEditor' => env('CODE_EDITOR', 'phpstorm'),
 ];

@@ -1,0 +1,11 @@
+Complete: false
+
+Task: >
+  DESCRIPTION_OF_TASK
+
+Models:
+  MODEL_NAME:
+      - MODEL_PROPERTY
+
+Relationships:
+  - MODEL_1 BelongsTo MODEL_2

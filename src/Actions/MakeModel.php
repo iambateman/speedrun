@@ -18,11 +18,11 @@ class MakeModel {
     protected string $path;
     protected string $model_name;
     protected string $prompt;
-    protected array $brief;
+    protected array $task;
     protected bool $success = false;
     protected string $message = '';
 
-    public function handle(string $model_name)
+    public function handle(string $model_name, string $task_path)
     {
         // Test for existence
         $this->path = Helpers::getModelPath($model_name, true);
@@ -34,7 +34,7 @@ class MakeModel {
 
         // Get initial data
         $this->model_name = Helpers::handleModelName($model_name, true);
-        $this->brief = Speedrun::getBrief();
+        $this->task = GetTask::run($task_path);
         $this->buildPrompt();
 
         // Run the AI request
@@ -43,7 +43,7 @@ class MakeModel {
         // Process the response
         $this->placeFile($response);
 
-        CheckForBugs::run($this->path, "In particular, check for duplicated methods, and make sure namespace App\Models; is directly below <?php, with no extra line break.");
+        CheckForBugs::run($this->path, "In particular, check for duplicated methods.");
     }
 
 
@@ -51,11 +51,16 @@ class MakeModel {
     {
         $this->prompt = Speedrun::getOverview();
         $this->prompt .= "You are creating a new model called {$this->model_name}.";
-        $this->prompt .= " All relationships for the entire app are " . $this->createRelationshipsString() . '.';
-        $this->prompt .= " Include relevant relationships in this model. Include \$guarded = [].";
+
+        if ($relationships = $this->createRelationshipsString()) {
+            $this->prompt .= " All relationships for the entire app are " . $relationships . '.';
+            $this->prompt .= " Include relevant relationships in this model. ";
+        }
+
+        $this->prompt .= " Include \$guarded = [].";
         $this->prompt .= " Respond only with the Laravel model file. Do not include additional explanation.";
         $this->prompt .= " Start the file exactly like this: `<?php\nnamespace App\Models;`. Assume all models have factories.";
-        $this->prompt .= " A sample Laravel migration template is included below:\n\n";
+        $this->prompt .= " A sample Laravel model template is included below:\n\n";
         $this->prompt .= " ```php\n";
         $this->prompt .= $this->getSampleModel();
         $this->prompt .= "\n```";
@@ -78,25 +83,27 @@ class MakeModel {
 
     public function createRelationshipsString(): string
     {
-        return collect($this->brief['Relationships'])
+        return collect($this->task['Relationships'] ?? [])
             ->implode(', ');
     }
 
     public function asCommand(Command $command)
     {
         $model_name = $command->argument('model_name');
+        $task_path = $command->argument('task_path');
 
 
         if ($model_name) {
             $models = collect($model_name);
         } else {
-            $brief = Speedrun::getBrief();
-            $models = collect($brief['Models'])->keys();
+            $task = GetTask::run($task_path);
+            $this->handle($model_name, $task_path);
+            $models = collect($task['Models'])->keys();
         }
 
         foreach ($models as $model) {
             $command->info("Creating model for $model");
-            $this->handle($model);
+            $this->handle($model_name, $task_path);
         }
 
         if ($this->message) {

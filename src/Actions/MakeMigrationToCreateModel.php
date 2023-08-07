@@ -18,16 +18,17 @@ class MakeMigrationToCreateModel {
 
     public string $model_name;
     public string $prompt;
-    public array $brief;
+    public array $task;
     public string $file_path;
     public bool $success = false;
     public string $message = '';
 
-    public function handle(string $model_name)
+    public function handle(string $model_name, string $task_path)
     {
         // Get initial data
         $this->model_name = $this->handleModelName($model_name);
-        $this->brief = Speedrun::getBrief();
+        $this->task = GetTask::run($task_path);
+
         $this->buildPrompt();
 
         // Run the AI request
@@ -47,18 +48,16 @@ class MakeMigrationToCreateModel {
     public function asCommand(Command $command)
     {
         $model_name = $command->argument('model_name');
+        $task_path = $command->argument('task_path');
 
-        // Make sure it's just the basename, not the fully qualified path.
-        $model_name = class_basename($model_name);
+
+        $command->info("Creating migration for $model_name");
+
+        $this->handle($model_name, $task_path);
 
         if ($this->message) {
             $command->info($this->message);
         }
-
-        $command->info("Creating migration for $model_name");
-
-        $this->handle($model_name);
-
         ($this->success) ?
             $command->info("Successfully created migration for $model_name") :
             $command->warn("Failed making migration for $model_name");
@@ -74,12 +73,17 @@ class MakeMigrationToCreateModel {
 
     public function buildPrompt(): self
     {
+
         $this->prompt = Speedrun::getOverview();
         $this->prompt .= "You are creating a new migration for the {$this->model_name} model.";
         $this->prompt .= " The fields to include are " . $this->createFieldsString() . '.';
-        $this->prompt .= " All relationships for the entire app are " . $this->createRelationshipsString() . '.';
-        $this->prompt .= " Include relevant belongsTo relationships for the {$this->model_name} table.";
-        $this->prompt .= " Do not include extra 'many to many' schemas – only create a single schema for {$this->model_name}.";
+
+        if ($relationships = $this->createRelationshipsString()) {
+            $this->prompt .= " All relationships for this task (possibly including some irrelevant ones) are " . $relationships . '.';
+            $this->prompt .= " Include relevant belongsTo relationships for the {$this->model_name} table.";
+            $this->prompt .= " Do not include extra 'many to many' schemas – only create a single schema for {$this->model_name}.";
+        }
+
         $this->prompt .= " Do not include schemas for any other tables – only create a single schema for {$this->model_name}.";
         $this->prompt .= " Use an anonymous function for the migration. The class is declared like this: `return new class extends Migration {` and NOT like this `class Create{$this->model_name}Table extends Migration` ";
         $this->prompt .= " Fields marked * are required. Fields not marked * are nullable. Use regular Laravel timestamps. Respond only with the Laravel migration file, including all fields which should be present.";
@@ -99,19 +103,19 @@ class MakeMigrationToCreateModel {
 
     protected function handleModelName($model_name)
     {
-        return str($model_name)->singular()->lower();
+        return str($model_name)->classBasename()->singular()->lower();
     }
 
     protected function createFieldsString(): string
     {
         $titleCaseModel = str($this->model_name)->title()->toString();
-        return collect($this->brief['Models'][$titleCaseModel])
+        return collect($this->task['Models'][$titleCaseModel])
             ->implode(', ');
     }
 
     protected function createRelationshipsString(): string
     {
-        return collect($this->brief['Relationships'])
+        return collect($this->task['Relationships'] ?? [])
             ->implode(', ');
     }
 

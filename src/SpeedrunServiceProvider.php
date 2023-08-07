@@ -4,9 +4,9 @@ namespace Iambateman\Speedrun;
 
 use Iambateman\Speedrun\Actions\CheckForBugs;
 use Iambateman\Speedrun\Actions\GenerateFilamentForModels;
-use Iambateman\Speedrun\Actions\InitializeFromBrief;
+use Iambateman\Speedrun\Actions\RunTask;
 use Iambateman\Speedrun\Actions\InstallFilament;
-use Iambateman\Speedrun\Actions\MakeBrief;
+use Iambateman\Speedrun\Actions\MakeTask;
 use Iambateman\Speedrun\Actions\MakeFactory;
 use Iambateman\Speedrun\Actions\MakeManyToManyMigrations;
 use Iambateman\Speedrun\Actions\MakeMigrationToCreateModel;
@@ -58,9 +58,9 @@ class SpeedrunServiceProvider extends PackageServiceProvider {
                 MakeTestForModel::class,
                 RunTests::class,
                 RunMigrations::class,
-                InitializeFromBrief::class,
+                RunTask::class,
                 MakeManyToManyMigrations::class,
-                MakeBrief::class,
+                MakeTask::class,
                 CheckForBugs::class,
                 InstallFilament::class,
                 GenerateFilamentForModels::class

@@ -89,6 +89,12 @@ class Speedrun {
         return $overview;
     }
 
+    public static function getTasks(): array|null
+    {
+        $path = base_path('_ai/brief.yml');
+        return Speedrun::getSchemaFromFile($path);
+    }
+
 
     public static function getBrief(): array|null
     {
@@ -113,9 +119,10 @@ class Speedrun {
 
     public static function runPreflightSafetyChecks()
     {
-        echo 'Running migrations';
-        Artisan::call('speedrun:run-migrations');
-        echo Artisan::output();
+//        echo 'Running migrations';
+//        Artisan::call('speedrun:run-migrations');
+//        echo Artisan::output();
+
         echo 'Running tests';
         Artisan::call('speedrun:run-tests');
         echo Artisan::output();
