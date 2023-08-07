@@ -22,6 +22,7 @@ class SpeedrunCommand extends Command
 
     public function handle(): int
     {
+
         Helpers::dieInProduction();
 
         $this->confirmAPIKey();

@@ -5,9 +5,12 @@ namespace Iambateman\Speedrun\Commands;
 use Iambateman\Speedrun\Exceptions\NoAPIKeyException;
 use Iambateman\Speedrun\Facades\Speedrun;
 use Illuminate\Console\Command;
+use function Laravel\Prompts\confirm;
+use function Laravel\Prompts\select;
+use function Laravel\Prompts\text;
 
-class DemoCommand extends Command
-{
+class DemoCommand extends Command {
+
     public $signature = 'speedrun:demo';
 
     public $description = 'Demo of Speedrun';
@@ -35,27 +38,26 @@ class DemoCommand extends Command
         $this->slowInfo('RUN', 'warn');
         $this->slowInfo('');
 
-        $this->slowInfo('   ╬═╬   ');
-        $this->slowInfo('   ╬═╬   ');
-        $this->slowInfo('   ╬═╬   ');
-        $this->slowInfo('   ╬═╬☻/ ');
-        $this->slowInfo('   ╬═╬/▌ ');
-        $this->slowInfo('   ╬═╬/ \\');
+        $this->slowInfo('     ╬═╬     ');
+        $this->slowInfo('     ╬═╬     ');
+        $this->slowInfo('     ╬═╬     ');
+        $this->slowInfo('     ╬═╬  ☻/ ');
+        $this->slowInfo('     ╬═╬ /▌  ');
+        $this->slowInfo('    ╬═╬ / \\');
         $this->slowInfo('');
-        $this->slowInfo('The easiest way');
+        $this->slowInfo('The fastest way');
         $this->slowInfo('to write');
-        $this->slowInfo('Laravel commands');
-        $this->slowInfo('using normal language.');
+        $this->slowInfo('Laravel apps.');
         $this->slowInfo('');
         $this->slowInfo('');
 
-        if (! Speedrun::getKey()) {
+        if (!Speedrun::getKey()) {
             throw new NoAPIKeyException('Please add OPENAI_API_KEY to .env, then re-run php artisan speedrun:demo.');
         }
 
         sleep(1);
 
-        if (! $this->confirm('Have you already added the sr alias for the package?', true)) {
+        if (!confirm('Have you already added the sr alias for the package?', true)) {
             $this->aliasStep();
         }
 
@@ -72,7 +74,7 @@ class DemoCommand extends Command
 
         usleep($this->sleepy_time);
 
-        $this->$type('>>>>'.str_repeat(' ', $padding).$text.str_repeat(' ', $padding));
+        $this->$type('>>>>' . str_repeat(' ', $padding) . $text . str_repeat(' ', $padding));
     }
 
     public function runIterator()
@@ -88,7 +90,7 @@ class DemoCommand extends Command
         $nextWord = ($choiceCollection->count() == 3) ? 'first' : 'next';
 
         $choice = ($choiceCollection->count() > 1) ?
-            $this->choice("What do you want to see {$nextWord}?", [...$this->choices, "Robot's Choice"]) :
+            select("What do you want to see {$nextWord}?", [...$this->choices, "Robot's Choice"]) :
             $choiceCollection->first();
 
         if ($choiceCollection->count() == 1) {
@@ -144,7 +146,11 @@ class DemoCommand extends Command
         $this->slowInfo('alias sr="php artisan speedrun"', 'comment');
         $this->slowInfo('to your .zshrc file.');
 
-        $this->ask('ready to proceed? (press enter)', true);
+        confirm(
+            label: 'Ready to proceed? (press enter)',
+            default: true,
+        );
+
         $this->slowInfo('');
         $this->slowInfo('');
         $this->slowInfo('Great!');
@@ -179,7 +185,8 @@ class DemoCommand extends Command
         $this->slowInfo('');
         sleep(1);
 
-        $response = $this->ask("QUIZ! practice typing 'sr start queue' (or press enter).");
+
+        $response = text("QUIZ! practice typing 'sr start queue' (or press enter).");
 
         if ($response == 'sr start queue') {
             $this->slowInfo('✅ ✅ ✅ ✅ ✅');
@@ -251,7 +258,7 @@ class DemoCommand extends Command
             sleep(1);
         }
 
-        $response = $this->ask('What would you like to ask?', 'sr what is user 1 name?');
+        $response = text(label: 'What would you like to ask?', default: 'sr what is user 1 name?');
         $filtered = str($response)->remove('sr');
         $this->call('speedrun:run-query-command', ['input' => $filtered]);
 
@@ -259,7 +266,7 @@ class DemoCommand extends Command
         $this->slowInfo('');
         $this->slowInfo('Nice!');
 
-        if ($this->confirm('would you like to try another query?', false)) {
+        if (confirm('would you like to try another query?', false)) {
             $this->queryToddler();
         }
 
@@ -298,7 +305,7 @@ class DemoCommand extends Command
         $this->slowInfo('');
         sleep(1);
 
-        $response = $this->ask('What would you like to install?', 'laravel debugbar');
+        $response = text(label:'What would you like to install?', default: 'laravel debugbar');
         $filtered = str($response)->remove('sr install');
         $this->call('speedrun:install-composer-package', ['input' => $filtered]);
 
@@ -338,4 +345,5 @@ class DemoCommand extends Command
 
         return static::SUCCESS;
     }
+
 }
