@@ -1,34 +1,38 @@
 <?php
 
-namespace Iambateman\Speedrun\Actions;
+namespace Iambateman\Speedrun\Actions\Tasks;
 
-use Iambateman\Speedrun\Actions\RequestAICompletion;
-use Iambateman\Speedrun\Exceptions\ConfusedLLMException;
 use Iambateman\Speedrun\Speedrun;
-use Iambateman\Speedrun\Helpers\Helpers;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
 use Lorisleiva\Actions\Concerns\AsAction;
+use function Laravel\Prompts\confirm;
 
-class InstallFilament {
+class PruneIncompleteTasks {
 
     use AsAction;
 
-    public string $commandSignature = 'speedrun:install-filament';
+    public string $commandSignature = 'speedrun:prune-incomplete-tasks';
 
     public bool $success = false;
     public string $message = '';
 
     public function handle(): void
     {
-        if (Helpers::command_exists('filament:install')) {
-            $this->success = true;
-            $this->message = "Filament already installed.";
+        $tasks = (new GetTask())->getTasks()->where('Complete', '!=', true);
+
+        foreach ($tasks as $task) {
+            File::delete($task['Path']);
         }
+
+        $this->success = true;
     }
 
     public function asCommand(Command $command)
     {
-        $this->handle();
+        if (confirm("Permanently delete tasks?")) {
+            $this->handle();
+        }
 
         if ($this->message) {
             $command->info($this->message);

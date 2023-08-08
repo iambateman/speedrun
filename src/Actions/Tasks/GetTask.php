@@ -1,16 +1,11 @@
 <?php
 
-namespace Iambateman\Speedrun\Actions;
+namespace Iambateman\Speedrun\Actions\Tasks;
 
-use Iambateman\Speedrun\Actions\RequestAICompletion;
-use Iambateman\Speedrun\Exceptions\ConfusedLLMException;
-use Iambateman\Speedrun\Helpers\Helpers;
-use Iambateman\Speedrun\Speedrun;
-use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
-use Lorisleiva\Actions\Concerns\AsAction;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use Lorisleiva\Actions\Concerns\AsAction;
 use Symfony\Component\Yaml\Yaml;
 
 class GetTask {

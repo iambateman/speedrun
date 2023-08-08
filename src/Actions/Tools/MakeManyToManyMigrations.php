@@ -1,14 +1,14 @@
 <?php
 
-namespace Iambateman\Speedrun\Actions;
+namespace Iambateman\Speedrun\Actions\Tools;
 
-use Carbon\Carbon;
-use Iambateman\Speedrun\Exceptions\ConfusedLLMException;
+use Iambateman\Speedrun\Actions\Utilities\FilterPHP;
+use Iambateman\Speedrun\Actions\Utilities\GetAIWithFallback;
 use Iambateman\Speedrun\Speedrun;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Illuminate\Console\Command;
 
 
 class MakeManyToManyMigrations {
@@ -87,7 +87,7 @@ class MakeManyToManyMigrations {
     {
         $date = now()->format('Y_m_d_His');
         $path = base_path("database/migrations/{$date}_create_{$models}_table.php");
-        $data = Speedrun::filterPhp($data);
+        $data = FilterPHP::run($data);
 
         $this->success = File::put($path, $data);
     }

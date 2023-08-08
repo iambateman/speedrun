@@ -1,12 +1,15 @@
 <?php
 
-namespace Iambateman\Speedrun\Actions;
+namespace Iambateman\Speedrun\Actions\Tools;
 
+use Iambateman\Speedrun\Actions\Tasks\GetTask;
+use Iambateman\Speedrun\Actions\Utilities\FilterPHP;
+use Iambateman\Speedrun\Actions\Utilities\GetAIWithFallback;
 use Iambateman\Speedrun\Helpers\Helpers;
 use Iambateman\Speedrun\Speedrun;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Illuminate\Console\Command;
 
 
 class MakeModel {
@@ -75,7 +78,7 @@ class MakeModel {
 
     public function placeFile(string $response)
     {
-        $data = Speedrun::filterPhp($response);
+        $data = FilterPHP::run($response);
         info($data);
         $this->success = File::put($this->path, $data);
     }

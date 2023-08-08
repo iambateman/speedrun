@@ -83,16 +83,11 @@ class Speedrun {
     {
         $brief = Speedrun::getBrief();
 
+        $app_name = config('app.name');
         $overview = "You are building a Laravel app called {$brief['Name']}. ";
         $overview .= " {$brief['Overview']}";
 
         return $overview;
-    }
-
-    public static function getTasks(): array|null
-    {
-        $path = base_path('_ai/brief.yml');
-        return Speedrun::getSchemaFromFile($path);
     }
 
 
@@ -117,87 +112,5 @@ class Speedrun {
         return null;
     }
 
-    public static function runPreflightSafetyChecks()
-    {
-//        echo 'Running migrations';
-//        Artisan::call('speedrun:run-migrations');
-//        echo Artisan::output();
-
-        echo 'Running tests';
-        Artisan::call('speedrun:run-tests');
-        echo Artisan::output();
-    }
-
-    public static function filterPhp(string $response): string
-    {
-        $stringedResponse = str($response);
-
-        // *****
-        // If it just sent back the file, we are good.
-        if ($stringedResponse->startsWith('<?php')) {
-            return $stringedResponse;
-        }
-
-        // *****
-        // Failure case, there is apparently no PHP file.
-        if (!$stringedResponse->contains('```')) {
-            info($stringedResponse);
-            throw new ConfusedLLMException('The LLM doesnt appear to have sent back the correct information. We logged it.');
-        }
-
-        // Get the stuff between
-        $filtered = $stringedResponse->between('```php', '```');
-
-
-        if (!$filtered) {
-            $filtered = $stringedResponse->between('```', '```');
-        }
-
-        // Remove any extra notes.
-        if ($filtered->contains('```')) {
-            $filtered = $filtered->before('```');
-        }
-
-        // *****
-        // PHP files *must* begin with <?php
-        // And there can't be any white space.
-        $filtered = $filtered->remove('<?php');
-        $filtered = $filtered->start('<?php');
-
-
-        info('ran filter!');
-        return $filtered;
-
-    }
-
-    public static function filterYaml(string $response): string
-    {
-        $stringedResponse = str($response);
-
-        // *****
-        // Failure case, there is apparently no structured data.
-        if (!$stringedResponse->contains('```')) {
-            info($stringedResponse);
-            throw new ConfusedLLMException('The LLM doesnt appear to have sent back the correct information. We logged it.');
-        }
-
-        // Get the stuff between
-        $filtered = $stringedResponse->between('```yaml', '```');
-
-
-        if (!$filtered) {
-            $filtered = $stringedResponse->between('```', '```');
-        }
-
-
-        // Remove any extra notes.
-        if ($filtered->contains('```')) {
-            $filtered = $filtered->before('```');
-        }
-
-        info('ran filter!');
-        return $filtered;
-
-    }
 
 }

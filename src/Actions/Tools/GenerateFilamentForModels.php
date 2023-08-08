@@ -1,6 +1,6 @@
 <?php
 
-namespace Iambateman\Speedrun\Actions;
+namespace Iambateman\Speedrun\Actions\Tools;
 
 use Iambateman\Speedrun\Helpers\Helpers;
 use Illuminate\Console\Command;
@@ -28,7 +28,7 @@ class GenerateFilamentForModels {
          echo Artisan::output();
 
          if(!$models) {
-             $models = Helpers::getModels()
+             $models = GetModels::run()
                  ->map(fn($qualifiedModel) => class_basename($qualifiedModel));
          }
 

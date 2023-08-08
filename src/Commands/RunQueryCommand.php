@@ -2,7 +2,7 @@
 
 namespace Iambateman\Speedrun\Commands;
 
-use Iambateman\Speedrun\Actions\RequestAICompletion;
+use Iambateman\Speedrun\Actions\Utilities\RequestAICompletion;
 use Iambateman\Speedrun\Exceptions\ConfusedLLMException;
 use Iambateman\Speedrun\Helpers\Helpers;
 use Iambateman\Speedrun\Speedrun;

@@ -2,19 +2,20 @@
 
 namespace Iambateman\Speedrun;
 
-use Iambateman\Speedrun\Actions\CheckForBugs;
-use Iambateman\Speedrun\Actions\GenerateFilamentForModels;
-use Iambateman\Speedrun\Actions\RunTask;
-use Iambateman\Speedrun\Actions\InstallFilament;
-use Iambateman\Speedrun\Actions\MakeTask;
-use Iambateman\Speedrun\Actions\MakeFactory;
-use Iambateman\Speedrun\Actions\MakeManyToManyMigrations;
-use Iambateman\Speedrun\Actions\MakeMigrationToCreateModel;
-use Iambateman\Speedrun\Actions\MakeModel;
-use Iambateman\Speedrun\Actions\MakeTestForModel;
 use Iambateman\Speedrun\Actions\OODA;
-use Iambateman\Speedrun\Actions\RunMigrations;
-use Iambateman\Speedrun\Actions\RunTests;
+use Iambateman\Speedrun\Actions\Tasks\MakeTask;
+use Iambateman\Speedrun\Actions\Tasks\PruneIncompleteTasks;
+use Iambateman\Speedrun\Actions\Tasks\RunTask;
+use Iambateman\Speedrun\Actions\Tools\CheckForBugs;
+use Iambateman\Speedrun\Actions\Tools\GenerateFilamentForModels;
+use Iambateman\Speedrun\Actions\Tools\InstallFilament;
+use Iambateman\Speedrun\Actions\Tools\MakeFactory;
+use Iambateman\Speedrun\Actions\Tools\MakeManyToManyMigrations;
+use Iambateman\Speedrun\Actions\Tools\MakeMigrationToCreateModel;
+use Iambateman\Speedrun\Actions\Tools\MakeModel;
+use Iambateman\Speedrun\Actions\Tools\MakeTestForModel;
+use Iambateman\Speedrun\Actions\Utilities\RunMigrations;
+use Iambateman\Speedrun\Actions\Utilities\RunTests;
 use Iambateman\Speedrun\Commands\DemoCommand;
 use Iambateman\Speedrun\Commands\IndicateDemoPresenceCommand;
 use Iambateman\Speedrun\Commands\InstallComposerPackage;
@@ -22,7 +23,6 @@ use Iambateman\Speedrun\Commands\RunArtisanCommand;
 use Iambateman\Speedrun\Commands\RunHelpCommand;
 use Iambateman\Speedrun\Commands\RunQueryCommand;
 use Iambateman\Speedrun\Commands\SpeedrunCommand;
-use Iambateman\Speedrun\DTO\Tool;
 use Iambateman\Speedrun\Helpers\ToolList;
 use Illuminate\Support\Collection;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
@@ -63,7 +63,8 @@ class SpeedrunServiceProvider extends PackageServiceProvider {
                 MakeTask::class,
                 CheckForBugs::class,
                 InstallFilament::class,
-                GenerateFilamentForModels::class
+                GenerateFilamentForModels::class,
+                PruneIncompleteTasks::class
             ])->hasInstallCommand(function (InstallCommand $command) {
                 $command->endWith(function (InstallCommand $command) {
                     $command->line('');

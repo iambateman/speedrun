@@ -1,13 +1,14 @@
 <?php
 
-namespace Iambateman\Speedrun\Actions;
+namespace Iambateman\Speedrun\Actions\Tools;
 
-use Carbon\Carbon;
-use Iambateman\Speedrun\Exceptions\ConfusedLLMException;
+use Iambateman\Speedrun\Actions\Tasks\GetTask;
+use Iambateman\Speedrun\Actions\Utilities\FilterPHP;
+use Iambateman\Speedrun\Actions\Utilities\GetAIWithFallback;
 use Iambateman\Speedrun\Speedrun;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Illuminate\Console\Command;
 
 
 class MakeMigrationToCreateModel {
@@ -33,7 +34,7 @@ class MakeMigrationToCreateModel {
 
         // Run the AI request
         $response = GetAIWithFallback::run($this->prompt);
-        $response = Speedrun::filterPhp($response); // Clean the PHP file
+        $response = FilterPHP::run($response); // Clean the PHP file
         $response = $this->verifyValidMigrationFile($response); // Validate the PHP file
 
 
@@ -134,7 +135,7 @@ class MakeMigrationToCreateModel {
         $prompt .= $response;
 
         $response = GetAIWithFallback::run($prompt);
-        return Speedrun::filterPhp($response);
+        return FilterPHP::run($response);
     }
 
 

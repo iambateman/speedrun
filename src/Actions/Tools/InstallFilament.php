@@ -1,34 +1,31 @@
 <?php
 
-namespace Iambateman\Speedrun\Actions;
+namespace Iambateman\Speedrun\Actions\Tools;
 
-use Iambateman\Speedrun\Actions\RequestAICompletion;
-use Iambateman\Speedrun\Exceptions\ConfusedLLMException;
 use Iambateman\Speedrun\Helpers\Helpers;
-use Iambateman\Speedrun\Speedrun;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class CatchExceptions {
+class InstallFilament {
 
     use AsAction;
 
-    public string $commandSignature = 'speedrun:catch-exceptions {exceptions}';
+    public string $commandSignature = 'speedrun:install-filament';
 
     public bool $success = false;
     public string $message = '';
-    public string $variable;
 
-    public function handle($exceptions)
+    public function handle(): void
     {
-        dd('hi');
+        if (Helpers::command_exists('filament:install')) {
+            $this->success = true;
+            $this->message = "Filament already installed.";
+        }
     }
 
     public function asCommand(Command $command)
     {
-        $variable = $command->argument('exceptions');
-
-        $this->handle($variable);
+        $this->handle();
 
         if ($this->message) {
             $command->info($this->message);

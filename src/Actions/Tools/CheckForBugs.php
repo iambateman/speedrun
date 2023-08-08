@@ -1,11 +1,14 @@
 <?php
 
-namespace Iambateman\Speedrun\Actions;
+namespace Iambateman\Speedrun\Actions\Tools;
 
+use Iambateman\Speedrun\Actions\Utilities\FilterPHP;
+use Iambateman\Speedrun\Actions\Utilities\GetAIWithFallback;
 use Iambateman\Speedrun\Speedrun;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Lorisleiva\Actions\Concerns\AsAction;
+use function Iambateman\Speedrun\Actions\str_contains;
 
 class CheckForBugs {
 
@@ -47,7 +50,7 @@ class CheckForBugs {
         }
 
         // If there are bugs...
-        $response = Speedrun::filterPhp($response);
+        $response = FilterPHP::run($response);
         $this->handleFileSwitch($response);
     }
 

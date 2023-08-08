@@ -1,11 +1,7 @@
 <?php
 
-namespace Iambateman\Speedrun\Actions;
+namespace Iambateman\Speedrun\Actions\Tools;
 
-use Iambateman\Speedrun\Actions\RequestAICompletion;
-use Iambateman\Speedrun\Exceptions\ConfusedLLMException;
-use Iambateman\Speedrun\Helpers\Helpers;
-use Iambateman\Speedrun\Speedrun;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Lorisleiva\Actions\Concerns\AsAction;

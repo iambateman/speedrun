@@ -1,11 +1,10 @@
 <?php
 
-namespace Iambateman\Speedrun\Actions;
+namespace Iambateman\Speedrun\Actions\Tasks;
 
-use Iambateman\Speedrun\Actions\RequestAICompletion;
-use Iambateman\Speedrun\Exceptions\ConfusedLLMException;
-use Iambateman\Speedrun\Helpers\Helpers;
-use Iambateman\Speedrun\Speedrun;
+use Iambateman\Speedrun\Actions\Tools\MakeMigrationToCreateModel;
+use Iambateman\Speedrun\Actions\Tools\MakeModel;
+use Iambateman\Speedrun\Actions\Utilities\PreflightSafetyChecks;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
@@ -24,7 +23,7 @@ class RunTask {
 
     public function handle(): void
     {
-//        Speedrun::runPreflightSafetyChecks();
+//        PreflightSafetyChecks::run();
 
         $this->task = GetTask::run();
         $this->task_path = $this->task["Path"];

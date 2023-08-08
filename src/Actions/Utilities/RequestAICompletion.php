@@ -1,6 +1,6 @@
 <?php
 
-namespace Iambateman\Speedrun\Actions;
+namespace Iambateman\Speedrun\Actions\Utilities;
 
 use Iambateman\Speedrun\Exceptions\ConfusedLLMException;
 use Iambateman\Speedrun\Exceptions\NoAPIKeyException;

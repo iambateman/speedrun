@@ -1,28 +1,29 @@
 <?php
 
-namespace Iambateman\Speedrun\Actions;
+namespace Iambateman\Speedrun\Actions\Tools;
 
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class _EmptyActionWithVariable {
+class CatchExceptions {
 
     use AsAction;
 
-    public string $commandSignature = 'speedrun:SET_SIGNATURE {variable}';
+    public string $commandSignature = 'speedrun:catch-exceptions {exceptions}';
 
     public bool $success = false;
     public string $message = '';
     public string $variable;
 
-    public function handle($prompt, $model = ''): string|\Exception
+    public function handle($exceptions)
     {
-
+        dd('hi');
     }
 
     public function asCommand(Command $command)
     {
-        $variable = $command->argument('variable');
+        $variable = $command->argument('exceptions');
+
         $this->handle($variable);
 
         if ($this->message) {
