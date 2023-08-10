@@ -37,7 +37,8 @@ class SpeedrunCommand extends Command {
 
         } else {
             match ($this->inputText->words(1, '')->toString()) {
-                'run', 'start', 'go' => $this->call('speedrun:run-task'),
+                'run', 'start', 'go' => $this->call('speedrun:run-task', ['task_path' => $this->inputText]),
+                'undo', 'undo:task' => $this->call('speedrun:undo-task', ['task_path' => $this->inputText]),
                 'install', 'require', 'composer' => $this->call('speedrun:install-composer-package', ['input' => $this->inputText]),
                 'who', 'what', 'when', 'where', 'how', 'find', 'query' => $this->call('speedrun:run-query-command', ['input' => $this->inputText]),
                 'help' => $this->call('speedrun:run-help-command', ['input' => $this->inputText]),

@@ -2,33 +2,34 @@
 
 namespace Iambateman\Speedrun\Actions\Tasks;
 
+use Iambateman\Speedrun\Actions\Tools\MakeManyToManyMigrations;
 use Iambateman\Speedrun\Actions\Tools\MakeMigrationToCreateModel;
 use Iambateman\Speedrun\Actions\Tools\MakeModel;
-use Iambateman\Speedrun\Actions\Utilities\PreflightSafetyChecks;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Lorisleiva\Actions\Concerns\AsAction;
+use function Laravel\Prompts\confirm;
 
 class RunTask {
 
     use AsAction;
 
-    public string $commandSignature = 'speedrun:run-task';
+    public string $commandSignature = 'speedrun:run-task {task_path?}';
 
     public bool $success = false;
     public string $message = '';
-    public array $task;
+    public ?array $task;
     public string $task_path;
 
-    public function handle(): void
+    public function handle(?array $task): void
     {
 //        PreflightSafetyChecks::run();
 
-        $this->task = GetTask::run();
+        $this->task = $task ?? GetTask::run();
         $this->task_path = $this->task["Path"];
 
-        if(!$this->task || $this->task == []) {
+        if (!$this->task || $this->task == []) {
             $this->message = 'No incomplete task found.';
         }
 
@@ -41,8 +42,7 @@ class RunTask {
             echo Artisan::output();
         }
 
-        Artisan::call('speedrun:make-many-to-many-migrations');
-        echo Artisan::output();
+        MakeManyToManyMigrations::run($this->task_path);
 
         Artisan::call('speedrun:make-factory');
         echo Artisan::output();
@@ -55,7 +55,28 @@ class RunTask {
 
     public function asCommand(Command $command)
     {
-        $this->handle();
+
+        $task_path = $command->argument('task_path');
+
+        if($task_path == 'run' || $task_path == 'run task') {
+            $task_path = '';
+        }
+
+        // *****
+        // Sometimes tasks are invoked as commands in speedrun
+        // when that happens, we remove the 'run' text at the beginning.
+        if($task_path &&
+            str($task_path)->startsWith('run') &&
+            str($task_path)->contains('/')) {
+            $task_path = '/' . str($task_path)->after('/');
+        }
+
+        $this->task = GetTask::run($task_path);
+
+        $short_description = str($this->task['Task'])->words(10);
+        if (confirm("[RUN THIS?] {$short_description}")) {
+            $this->handle($this->task);
+        }
 
         if ($this->message) {
             $command->info($this->message);

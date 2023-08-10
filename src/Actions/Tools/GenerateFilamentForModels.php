@@ -4,6 +4,7 @@ namespace Iambateman\Speedrun\Actions\Tools;
 
 use Iambateman\Speedrun\Helpers\Helpers;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Artisan;
 use Lorisleiva\Actions\Concerns\AsAction;
 use function Laravel\Prompts\text;
@@ -17,33 +18,40 @@ class GenerateFilamentForModels {
     public bool $success = false;
     public string $message = '';
 
-    public function handle(?array $models): void
+    public function handle(?Collection $models): void
     {
-         if (! Helpers::command_exists('filament:install')) {
-             $this->message = "Filament is not installed.";
-             return;
-         }
+        if (!Helpers::command_exists('filament:install')) {
+            $this->message = "Filament is not installed.";
+            return;
+        }
 
-         Artisan::call('migrate');
-         echo Artisan::output();
+//         Artisan::call('migrate');
+//         echo Artisan::output();
 
-         if(!$models) {
-             $models = GetModels::run()
-                 ->map(fn($qualifiedModel) => class_basename($qualifiedModel));
-         }
+        // Try to fall back to all models in the system
+        if ($models->isEmpty()) {
+            $models = GetModels::run()
+                ->map(fn($qualifiedModel) => class_basename($qualifiedModel));
+        }
 
-         foreach($models as $model) {
-             $this->generateFilamentResource($model);
-         }
+        // There are no models.
+        if($models->isEmpty()) {
+            $this->message = 'No models found.';
+            return;
+        }
 
-         $this->success = true;
-         $this->message = 'Generated Filament Resources!';
+        foreach ($models as $model) {
+            $this->generateFilamentResource($model);
+        }
+
+        $this->success = true;
+        $this->message = 'Generated Filament Resources!';
     }
 
     public function generateFilamentResource(string $model_name)
     {
-          Artisan::call("make:filament-resource $model_name --generate");
-          echo Artisan::output();
+        Artisan::call("make:filament-resource $model_name --generate");
+        echo Artisan::output();
     }
 
     public function asCommand(Command $command)
@@ -51,7 +59,10 @@ class GenerateFilamentForModels {
         $models = collect($command->argument('models'));
 
         if ($models->isEmpty()) {
-            $models = $models->add(text("What model would you like to generate?"));
+            $model = text("What model would you like to generate? (or press enter for all models)");
+            if ($model) {
+                $models = $models->add($model);
+            }
         }
 
         // Make sure we're only sending basename
@@ -60,9 +71,9 @@ class GenerateFilamentForModels {
         // Enforce the uppercase model convention
         $models = $models->map(fn($model) => str($model)->title()->toString());
 
-        $this->handle($models->toArray());
+        $this->handle($models);
 
-        if($this->message) {
+        if ($this->message) {
             $command->info($this->message);
         }
 

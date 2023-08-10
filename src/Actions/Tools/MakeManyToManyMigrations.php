@@ -2,6 +2,8 @@
 
 namespace Iambateman\Speedrun\Actions\Tools;
 
+use Iambateman\Speedrun\Actions\Tasks\AddLogToTask;
+use Iambateman\Speedrun\Actions\Tasks\GetTask;
 use Iambateman\Speedrun\Actions\Utilities\FilterPHP;
 use Iambateman\Speedrun\Actions\Utilities\GetAIWithFallback;
 use Iambateman\Speedrun\Speedrun;
@@ -15,18 +17,24 @@ class MakeManyToManyMigrations {
 
     use AsAction;
 
-    public string $commandSignature = 'speedrun:make-many-to-many-migrations';
+    public string $commandSignature = 'speedrun:make-many-to-many-migrations {task_path}';
 
     public Collection $manyToManyList;
     public string $prompt;
-    public array $brief;
+    public array $task;
     public bool $success = false;
     public string $message = '';
 
-    public function handle()
+    public function handle(string $task_path): void
     {
         // Get initial data
-        $this->brief = Speedrun::getBrief();
+        $this->task = GetTask::run($task_path);
+
+        // If there are no relationships, there are no many to many migrations.
+        if(! array_key_exists('Relationships', $this->task)) {
+            return;
+        }
+
         $this->buildPromptToDetect();
 
         // Run the AI request
@@ -35,9 +43,10 @@ class MakeManyToManyMigrations {
         if ($response == 'none') {
             $this->message = "No many to many migrations found.";
             $this->success = true;
-            return false;
+            return;
         }
 
+        echo "Making many to many migrations.";
 
         // Process the response
         $this->placeMigrationsInArray($response);
@@ -49,9 +58,9 @@ class MakeManyToManyMigrations {
 
     public function asCommand(Command $command)
     {
-        $command->info("Making Many to Many Migrations");
+        $task_path = $command->argument('task_path');
 
-        $this->handle();
+        $this->handle($task_path);
 
         if ($this->message) {
             $command->info($this->message);
@@ -74,7 +83,14 @@ class MakeManyToManyMigrations {
             ->replace('FIRST', $first_model)
             ->replace('SECOND', $second_model);
 
-        $this->placeFile($first_model . '_' . $second_model, $migrationFile);
+        $file_path = $this->placeFile($first_model . '_' . $second_model, $migrationFile);
+
+        CheckForBugs::run($file_path, "\nPARTICULAR NOTES: \n - ensure there is a down() function in the migration.");
+
+        AddLogToTask::run(
+            task_path: $this->task['Path'],
+            log: "Created {$file_path}"
+        );
     }
 
     protected function getSampleMigration(): string
@@ -83,20 +99,22 @@ class MakeManyToManyMigrations {
         return File::get($path);
     }
 
-    public function placeFile(string $models, $data)
+    public function placeFile(string $models, $data): string
     {
         $date = now()->format('Y_m_d_His');
         $path = base_path("database/migrations/{$date}_create_{$models}_table.php");
         $data = FilterPHP::run($data);
 
         $this->success = File::put($path, $data);
+
+        return $path;
     }
 
     public function buildPromptToDetect()
     {
         $this->prompt = Speedrun::getOverview();
-        $this->prompt .= " All relationships for the entire app are " . $this->createRelationshipsString() . '.';
-        $this->prompt .= " Are there any 'Many to Many' relationships in this application? If so, which models? List each model pair on it's own line as `model - model` in alphabetical order.";
+        $this->prompt .= " All relationships for the entire task are " . $this->createRelationshipsString() . '.';
+        $this->prompt .= " Are there any 'Many to Many' relationships in this task? If so, which models? List each model pair on it's own line as `model - model` in alphabetical order.";
         $this->prompt .= " Do not include duplicates";
         $this->prompt .= " If there are no 'Many to Many' relationships, respond with 'none'";
     }
@@ -109,7 +127,8 @@ class MakeManyToManyMigrations {
 
     public function createRelationshipsString(): string
     {
-        return collect($this->brief['Relationships'])
+
+        return collect($this->task['Relationships'])
             ->implode(', ');
     }
 

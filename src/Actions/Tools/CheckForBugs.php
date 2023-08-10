@@ -44,7 +44,7 @@ class CheckForBugs {
 
 
         // If there are no bugs...
-        if(str($response)->contains('No bugs')){
+        if(str($response)->contains('No bugs') || str($response)->contains('does not contain')){
             $this->message = 'No bugs found';
             return $this->success = true;
         }
@@ -119,13 +119,15 @@ class CheckForBugs {
 
     public function detectLaravelTypeFromPath(): string
     {
+        $fileString = str($this->file_path);
+
         return match (true) {
-            str_contains($this->file_path, 'app/Models') => 'Model',
-            str_contains($this->file_path, 'database/migrations') => 'Migration',
-            str_contains($this->file_path, 'database/factories') => 'Factory',
-            str_contains($this->file_path, 'app/Console/Commands') => 'Command',
-            str_contains($this->file_path, 'resources/views') => 'View',
-            str_contains($this->file_path, 'test') => 'Test',
+            $fileString->contains( 'app/Models' ) => 'Model',
+            $fileString->contains( 'database/migrations' ) => 'Migration',
+            $fileString->contains( 'database/factories' ) => 'Factory',
+            $fileString->contains( 'app/Console/Commands' ) => 'Command',
+            $fileString->contains( 'resources/views' ) => 'View',
+            $fileString->contains( 'test' ) => 'Test',
             default => ''
         };
     }

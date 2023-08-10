@@ -11,6 +11,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Symfony\Component\Yaml\Yaml;
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\text;
 
@@ -66,16 +67,31 @@ class MakeTask {
         $prompt = $this->buildPrompt();
         $response = GetAIWithFallback::run($prompt);
 
-        return FilterYAML::run($response);
+        $response = FilterYAML::run($response);
+
+        // Append clarifications.
+        if ($this->clarifications && $this->clarifications->isNotEmpty()) {
+            $response .= "\n\nClarifications:\n";
+            $response .= $this->clarifications->map(function ($clarification) use ($response) {
+                if ($clarification['answer']) {
+                    return "  - 'Q: {$clarification['question']}. A: {$clarification['answer']}'\n";
+                }
+                return null;
+            })->implode('');
+        }
+
+        return $response;
 
     }
+
+
 
     protected function askClarifyingQuestions(string $description, Command $command): self
     {
 
         $prompt = "You are helping a Laravel developer work on a task for an application.\n";
         $prompt .= " You will read the description and not carry it out, only seek to clarify the details. Specifically, you will summarise a list of super short bullets of areas that need clarification to help you successfully define and accomplish the task.";
-        $prompt .= " Respond only with the list of bullets. If everything is clear, respond with 'All is clear'.\n\n";
+        $prompt .= " Respond only with the list of bullets. Make sure they are bullets, not numbers. If everything is clear, respond with 'All is clear'.\n\n";
         $prompt .= "TASK DESCRIPTION: {$description}";
 
         $response = GetAIWithFallback::run($prompt);
@@ -95,7 +111,7 @@ class MakeTask {
 
         // *****
         // Show each one beforehand.
-        $command->info("The following questions were asked by teh AI to better understand your task:");
+        $command->info("The following questions were asked by the AI to better understand your task:");
         $this->clarifications->each(function ($clarification) use ($command) {
             $command->info("- {$clarification['question']}");
         });
@@ -122,6 +138,7 @@ class MakeTask {
             $task_summary = GetAIWithFallback::run("Return only a 2-6 word description of '{$this->description}'. Use exact words where possible.");
 
             $task_summary = str($task_summary);
+            info($task_summary);
             if ($task_summary->wordCount() < 8) {
                 $file_name .= "_" . $task_summary->slug();
             }
@@ -157,10 +174,7 @@ Relationships:
 Subtasks:
   - "php artisan speedrun:example-command-with-no-parameters"
   - "php artisan speedrun:example-command-with-parameters parameter"
-  
-# Optional: only include if there are CLARIFICATIONS below.
-Clarifications:
-  - "QUESTION? ANSWER"
+ 
 
 ```
 END;
@@ -175,9 +189,9 @@ END;
         $tools = json_encode(ToolList::get());
         $prompt .= "```json\n{$tools}```\n";
 
-        if ($this->clarifications->isNotEmpty()) {
-        $prompt .= "\nCLARIFICATIONS:";
-        $prompt .= "\nYou asked the following clarifying questions about this task, and these were the answers:\n";
+        if ($this->clarifications && $this->clarifications->isNotEmpty()) {
+            $prompt .= "\nCLARIFICATIONS:";
+            $prompt .= "\nYou asked the following clarifying questions about this task, and these were the answers:\n";
 
             foreach ($this->clarifications as $clarification) {
                 if ($clarification['answer']) {
@@ -187,8 +201,9 @@ END;
         }
 
         $prompt .= " LAST NOTES:\n";
-        $prompt .= " - Make sure the response is surrounded by a ```yaml code block.";
-        $prompt .= " - Remove comment blocks.";
+        $prompt .= " - Make sure the response is surrounded by a ```yaml code block.\n";
+        $prompt .= " - Remove comment blocks.\n";
+        $prompt .= " - Make sure models are title cased.";
 
         info($prompt);
 
@@ -197,6 +212,9 @@ END;
 
     public function placeFile(string $response)
     {
+        // append Path
+         $response .= "\n\nPath: {$this->file_path}";
+
         $this->success = File::put($this->file_path, $response);
     }
 

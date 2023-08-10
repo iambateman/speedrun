@@ -2,9 +2,11 @@
 
 namespace Iambateman\Speedrun\Actions\Tools;
 
+use Iambateman\Speedrun\Actions\Tasks\AddLogToTask;
 use Iambateman\Speedrun\Actions\Tasks\GetTask;
 use Iambateman\Speedrun\Actions\Utilities\FilterPHP;
 use Iambateman\Speedrun\Actions\Utilities\GetAIWithFallback;
+use Iambateman\Speedrun\Exceptions\ConfusedLLMException;
 use Iambateman\Speedrun\Speedrun;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
@@ -18,32 +20,34 @@ class MakeMigrationToCreateModel {
     public string $commandSignature = 'speedrun:make-migration-to-create-model {model_name}';
 
     public string $model_name;
+    public string $model_table;
     public string $prompt;
     public array $task;
+    public string $task_path;
+    public string $response = ''; // AI response
     public string $file_path;
     public bool $success = false;
     public string $message = '';
 
     public function handle(string $model_name, string $task_path)
     {
-        // Get initial data
-        $this->model_name = $this->handleModelName($model_name);
-        $this->task = GetTask::run($task_path);
 
-        $this->buildPrompt();
+        $this->setInitialData($model_name, $task_path)
+            ->buildPrompt()
+            ->runAI()
+            ->filterPHP()
+            ->verifyValidMigrationFile()
+            ->confirmHasResponse()
+            ->fixSpecificMigrationIssues()
+            ->placeFile();
 
-        // Run the AI request
-        $response = GetAIWithFallback::run($this->prompt);
-        $response = FilterPHP::run($response); // Clean the PHP file
-        $response = $this->verifyValidMigrationFile($response); // Validate the PHP file
+        CheckForBugs::run($this->file_path, "\nPARTICULAR NOTES: \n - ensure there is a down() function in the migration.\n - Make sure the model name is plural.");
 
+        AddLogToTask::run(
+            task_path: $task_path,
+            log: "Created {$this->file_path}"
+        );
 
-        // Process the response
-        if ($response) {
-            $this->placeFile($response);
-
-            CheckForBugs::run($this->file_path);
-        }
     }
 
     public function asCommand(Command $command)
@@ -64,29 +68,30 @@ class MakeMigrationToCreateModel {
             $command->warn("Failed making migration for $model_name");
     }
 
-    public function placeFile(string $response)
+    protected function setInitialData(string $model_name, string $task_path): self
     {
-        $date = now()->format('Y_m_d_His');
-        $this->file_path = base_path("database/migrations/{$date}_create_{$this->model_name}_table.php");
+        $this->model_name = $model_name;
+        $this->model_table = str($model_name)->lower()->plural()->toString();
+        $this->task_path = $task_path;
+        $this->task = GetTask::run($task_path);
 
-        $this->success = File::put($this->file_path, $response);
+        return $this;
     }
 
     public function buildPrompt(): self
     {
-
         $this->prompt = Speedrun::getOverview();
         $this->prompt .= "You are creating a new migration for the {$this->model_name} model.";
         $this->prompt .= " The fields to include are " . $this->createFieldsString() . '.';
 
         if ($relationships = $this->createRelationshipsString()) {
             $this->prompt .= " All relationships for this task (possibly including some irrelevant ones) are " . $relationships . '.';
-            $this->prompt .= " Include relevant belongsTo relationships for the {$this->model_name} table.";
-            $this->prompt .= " Do not include extra 'many to many' schemas – only create a single schema for {$this->model_name}.";
+            $this->prompt .= " Include relevant belongsTo relationships for the {$this->model_table} table.";
+            $this->prompt .= " Do not include extra 'many to many' schemas – only create a single schema for {$this->model_table}.";
         }
 
         $this->prompt .= " Do not include schemas for any other tables – only create a single schema for {$this->model_name}.";
-        $this->prompt .= " Use an anonymous function for the migration. The class is declared like this: `return new class extends Migration {` and NOT like this `class Create{$this->model_name}Table extends Migration` ";
+        $this->prompt .= " Use an anonymous function for the migration.";
         $this->prompt .= " Fields marked * are required. Fields not marked * are nullable. Use regular Laravel timestamps. Respond only with the Laravel migration file, including all fields which should be present.";
         $this->prompt .= " A sample Laravel migration template is included below:\n\n";
         $this->prompt .= " ```php\n";
@@ -96,37 +101,61 @@ class MakeMigrationToCreateModel {
         return $this;
     }
 
-    protected function getSampleMigration(): string
+    protected function runAI(): self
     {
-        $path = base_path('vendor/iambateman/speedrun/resources/stubs/migration.php.stub');
-        return File::get($path);
+        $this->response = GetAIWithFallback::run($this->prompt);
+        return $this;
     }
 
-    protected function handleModelName($model_name)
+    protected function filterPHP(): self
     {
-        return str($model_name)->classBasename()->singular()->lower();
+        $this->response = FilterPHP::run($this->response);
+        return $this;
     }
 
-    protected function createFieldsString(): string
+    public function placeFile(): self
     {
-        $titleCaseModel = str($this->model_name)->title()->toString();
-        return collect($this->task['Models'][$titleCaseModel])
-            ->implode(', ');
+        $date = now()->format('Y_m_d_His');
+        $this->file_path = base_path("database/migrations/{$date}_create_{$this->model_table}_table.php");
+
+        $this->success = File::put($this->file_path, $this->response);
+
+        return $this;
     }
 
-    protected function createRelationshipsString(): string
+    protected function fixSpecificMigrationIssues(): self
     {
-        return collect($this->task['Relationships'] ?? [])
-            ->implode(', ');
+        $response = str($this->response);
+
+        // *****
+        // Switch `class CreatePostsTable extends Migration`  to `return new class extends Migration`
+        $regex = '/class\s+\w+\s+extends\s+Migration/';
+        if ($response->match($regex)) {
+            $response->replaceMatches($regex, 'return new class extends Migration'); // switch out the syntax.
+            $response->replaceLast('}', '};'); // close the last bracket with a semicolon.
+        }
+
+        return $this;
+
     }
 
-    protected function verifyValidMigrationFile(string $response): string
+    protected function confirmHasResponse(): self
     {
-        return match (str($response)->substrCount('Schema::create')) {
+        if (!$this->response) {
+            throw new ConfusedLLMException('It looks like the LLM did not understand the request.');
+        }
+        return $this;
+    }
+
+    protected function verifyValidMigrationFile(): self
+    {
+        $this->response = match (str($this->response)->substrCount('Schema::create')) {
             0 => '', // If there are no schemas, we messed up
-            1 => $response,  // If there is one, we are good
-            default => $this->filterMigration($response) // If there are multiple, let's remove the extras.
+            1 => $this->response,  // If there is one, we are good
+            default => $this->filterMigration($this->response) // If there are multiple, let's remove the extras.
         };
+
+        return $this;
     }
 
     protected function filterMigration(string $response): string
@@ -136,6 +165,27 @@ class MakeMigrationToCreateModel {
 
         $response = GetAIWithFallback::run($prompt);
         return FilterPHP::run($response);
+    }
+
+    protected function createFieldsString(): string
+    {
+//        $titleCaseModel = str($this->model_name)->title()->toString();
+        return collect($this->task['Models'][$this->model_name])
+            ->implode(', ');
+    }
+
+    protected function createRelationshipsString(): string
+    {
+        return collect($this->task['Relationships'] ?? [])
+            ->implode(', ');
+    }
+
+    protected function getSampleMigration(): string
+    {
+        $path = base_path('vendor/iambateman/speedrun/resources/stubs/migration.php.stub');
+        $file = File::get($path);
+
+        return str($file)->replace('TABLE_NAME', $this->model_table);
     }
 
 

@@ -14,7 +14,7 @@ class GetTask {
 
     public function handle(?string $path = ''): ?array
     {
-        if($path) {
+        if($path && str($path)->startsWith('/')) {
             return static::getSchemaFromFile($path);
         }
 

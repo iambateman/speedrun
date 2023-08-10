@@ -6,6 +6,7 @@ use Iambateman\Speedrun\Actions\OODA;
 use Iambateman\Speedrun\Actions\Tasks\MakeTask;
 use Iambateman\Speedrun\Actions\Tasks\PruneIncompleteTasks;
 use Iambateman\Speedrun\Actions\Tasks\RunTask;
+use Iambateman\Speedrun\Actions\Tasks\UndoTask;
 use Iambateman\Speedrun\Actions\Tools\CheckForBugs;
 use Iambateman\Speedrun\Actions\Tools\GenerateFilamentForModels;
 use Iambateman\Speedrun\Actions\Tools\InstallFilament;
@@ -64,7 +65,8 @@ class SpeedrunServiceProvider extends PackageServiceProvider {
                 CheckForBugs::class,
                 InstallFilament::class,
                 GenerateFilamentForModels::class,
-                PruneIncompleteTasks::class
+                PruneIncompleteTasks::class,
+                UndoTask::class,
             ])->hasInstallCommand(function (InstallCommand $command) {
                 $command->endWith(function (InstallCommand $command) {
                     $command->line('');

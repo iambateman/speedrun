@@ -2,6 +2,7 @@
 
 namespace Iambateman\Speedrun\Actions\Tools;
 
+use Iambateman\Speedrun\Actions\Tasks\AddLogToTask;
 use Iambateman\Speedrun\Actions\Tasks\GetTask;
 use Iambateman\Speedrun\Actions\Utilities\FilterPHP;
 use Iambateman\Speedrun\Actions\Utilities\GetAIWithFallback;
@@ -47,6 +48,11 @@ class MakeModel {
         $this->placeFile($response);
 
         CheckForBugs::run($this->path, "In particular, check for duplicated methods.");
+
+        AddLogToTask::run(
+            task_path: $task_path,
+            log: "Created {$this->path}"
+        );
     }
 
 
