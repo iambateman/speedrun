@@ -8,6 +8,7 @@ use Iambateman\Speedrun\Actions\Utilities\FilterPHP;
 use Iambateman\Speedrun\Actions\Utilities\GetAIWithFallback;
 use Iambateman\Speedrun\Exceptions\ConfusedLLMException;
 use Iambateman\Speedrun\Speedrun;
+use Iambateman\Speedrun\Traits\AsTool;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -16,18 +17,9 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class MakeMigrationToCreateModel {
 
     use AsAction;
+    use AsTool;
 
     public string $commandSignature = 'speedrun:make-migration-to-create-model {model_name}';
-
-    public string $model_name;
-    public string $model_table;
-    public string $prompt;
-    public array $task;
-    public string $task_path;
-    public string $response = ''; // AI response
-    public string $file_path;
-    public bool $success = false;
-    public string $message = '';
 
     public function handle(string $model_name, string $task_path)
     {

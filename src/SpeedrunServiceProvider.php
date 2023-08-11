@@ -9,8 +9,11 @@ use Iambateman\Speedrun\Actions\Tasks\RunTask;
 use Iambateman\Speedrun\Actions\Tasks\UndoTask;
 use Iambateman\Speedrun\Actions\Tools\CheckForBugs;
 use Iambateman\Speedrun\Actions\Tools\GenerateFilamentForModels;
+use Iambateman\Speedrun\Actions\Tools\GetBladeComponents;
+use Iambateman\Speedrun\Actions\Tools\GetModels;
 use Iambateman\Speedrun\Actions\Tools\InstallFilament;
 use Iambateman\Speedrun\Actions\Tools\MakeFactory;
+use Iambateman\Speedrun\Actions\Tools\MakeLivewirePage;
 use Iambateman\Speedrun\Actions\Tools\MakeManyToManyMigrations;
 use Iambateman\Speedrun\Actions\Tools\MakeMigrationToCreateModel;
 use Iambateman\Speedrun\Actions\Tools\MakeModel;
@@ -67,6 +70,9 @@ class SpeedrunServiceProvider extends PackageServiceProvider {
                 GenerateFilamentForModels::class,
                 PruneIncompleteTasks::class,
                 UndoTask::class,
+                GetBladeComponents::class,
+                GetModels::class,
+                MakeLivewirePage::class,
             ])->hasInstallCommand(function (InstallCommand $command) {
                 $command->endWith(function (InstallCommand $command) {
                     $command->line('');

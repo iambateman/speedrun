@@ -53,7 +53,7 @@ class GetAIWithFallback {
         $result = Http::withToken($token)
             ->asJson()
             ->acceptJson()
-            ->timeout(45)
+            ->timeout(55)
             ->withBody(json_encode(
                 [
                     'model' => $model,

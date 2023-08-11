@@ -39,7 +39,6 @@ class GetTask {
     {
         if (File::isFile($path)) {
             $file = Yaml::parseFile($path);
-            $file['Path'] = $path;
             return $file;
         }
 
