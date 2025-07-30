@@ -3,6 +3,7 @@
 namespace Iambateman\Speedrun;
 
 use Iambateman\Speedrun\Actions\OODA;
+use Iambateman\Speedrun\Actions\Tasks\DefineViewsToMake;
 use Iambateman\Speedrun\Actions\Tasks\MakeTask;
 use Iambateman\Speedrun\Actions\Tasks\PruneIncompleteTasks;
 use Iambateman\Speedrun\Actions\Tasks\RunTask;
@@ -49,30 +50,11 @@ class SpeedrunServiceProvider extends PackageServiceProvider {
             ->name('speedrun')
             ->hasConfigFile()
             ->hasCommands([
-                InstallComposerPackage::class,
                 SpeedrunCommand::class,
-                RunArtisanCommand::class,
                 RunHelpCommand::class,
-                RunQueryCommand::class,
                 DemoCommand::class,
                 IndicateDemoPresenceCommand::class,
-                MakeModel::class,
-                MakeMigrationToCreateModel::class,
-                MakeFactory::class,
-                MakeTestForModel::class,
-                RunTests::class,
-                RunMigrations::class,
-                RunTask::class,
-                MakeManyToManyMigrations::class,
-                MakeTask::class,
-                CheckForBugs::class,
-                InstallFilament::class,
-                GenerateFilamentForModels::class,
-                PruneIncompleteTasks::class,
-                UndoTask::class,
-                GetBladeComponents::class,
-                GetModels::class,
-                MakeLivewirePage::class,
+
             ])->hasInstallCommand(function (InstallCommand $command) {
                 $command->endWith(function (InstallCommand $command) {
                     $command->line('');
@@ -89,11 +71,6 @@ class SpeedrunServiceProvider extends PackageServiceProvider {
     {
         parent::packageRegistered();
 
-        $this->app->booting(function () {
-            ToolList::initialize();
-        });
+
     }
-
-
-
 }
