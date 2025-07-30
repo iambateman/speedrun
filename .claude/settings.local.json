@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(vendor/bin/pest:*)",
+      "Bash(php:*)"
+    ],
+    "deny": []
+  }
+}
