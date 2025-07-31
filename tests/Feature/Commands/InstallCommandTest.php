@@ -7,7 +7,7 @@ describe('InstallCommand', function () {
     it('installs the package with default directories', function () {
         // Override config to not be installed
         config(['speedrun.installed' => false]);
-        
+
         artisan('speedrun:install')
             ->expectsQuestion('Base directory for features', '_docs')
             ->expectsConfirmation('Create these directories and install Speedrun?', 'yes')
@@ -30,7 +30,7 @@ describe('InstallCommand', function () {
 
     it('allows canceling installation', function () {
         config(['speedrun.installed' => false]);
-        
+
         artisan('speedrun:install')
             ->expectsQuestion('Base directory for features', '_docs')
             ->expectsConfirmation('Create these directories and install Speedrun?', 'no')
@@ -40,9 +40,9 @@ describe('InstallCommand', function () {
 
     it('accepts custom directory configuration', function () {
         config(['speedrun.installed' => false]);
-        
+
         $customDir = 'custom-features';
-        
+
         artisan('speedrun:install')
             ->expectsQuestion('Base directory for features', $customDir)
             ->expectsConfirmation('Create these directories and install Speedrun?', 'yes')

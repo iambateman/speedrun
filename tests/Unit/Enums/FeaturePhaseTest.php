@@ -7,15 +7,15 @@ describe('FeaturePhase', function () {
     it('has all expected phases', function () {
         $expectedPhases = [
             'discovery',
-            'description', 
+            'description',
             'planning',
             'execution',
             'cleanup',
-            'complete'
+            'complete',
         ];
-        
-        $actualPhases = array_map(fn($case) => $case->value, FeaturePhase::cases());
-        
+
+        $actualPhases = array_map(fn ($case) => $case->value, FeaturePhase::cases());
+
         expect($actualPhases)->toBe($expectedPhases);
     });
 
@@ -26,7 +26,7 @@ describe('FeaturePhase', function () {
         expect(FeaturePhase::PLANNING->canTransitionTo(FeaturePhase::EXECUTION))->toBeTrue();
         expect(FeaturePhase::EXECUTION->canTransitionTo(FeaturePhase::CLEANUP))->toBeTrue();
         expect(FeaturePhase::CLEANUP->canTransitionTo(FeaturePhase::COMPLETE))->toBeTrue();
-        
+
         // Invalid transitions
         expect(FeaturePhase::DISCOVERY->canTransitionTo(FeaturePhase::PLANNING))->toBeFalse();
         expect(FeaturePhase::DESCRIPTION->canTransitionTo(FeaturePhase::EXECUTION))->toBeFalse();
@@ -88,12 +88,12 @@ describe('FeaturePhase', function () {
 
     it('maintains phase order for workflow', function () {
         $phases = FeaturePhase::cases();
-        
+
         // Each phase should only allow transition to the next phase
         for ($i = 0; $i < count($phases) - 1; $i++) {
             $currentPhase = $phases[$i];
             $nextPhase = $phases[$i + 1];
-            
+
             expect($currentPhase->canTransitionTo($nextPhase))
                 ->toBeTrue("$currentPhase->value should transition to $nextPhase->value");
         }
@@ -101,12 +101,12 @@ describe('FeaturePhase', function () {
 
     it('prevents backward transitions', function () {
         $phases = FeaturePhase::cases();
-        
+
         // Test that no phase can transition backward
         for ($i = 1; $i < count($phases); $i++) {
             $currentPhase = $phases[$i];
             $previousPhase = $phases[$i - 1];
-            
+
             expect($currentPhase->canTransitionTo($previousPhase))
                 ->toBeFalse("$currentPhase->value should not transition backward to $previousPhase->value");
         }

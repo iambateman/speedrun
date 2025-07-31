@@ -64,7 +64,10 @@
             ],
             "aliases": {
                 "Speedrun": "Iambateman\\Speedrun\\Facades\\Speedrun"
-            }
+            },
+            "dont-discover": [
+                "*"
+            ]
         }
     },
     "minimum-stability": "dev",

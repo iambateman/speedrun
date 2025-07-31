@@ -3,7 +3,8 @@
     "allow": [
       "Bash(mkdir:*)",
       "Bash(vendor/bin/pest:*)",
-      "Bash(php:*)"
+      "Bash(php:*)",
+      "Bash(vendor/bin/pint:*)"
     ],
     "deny": []
   }

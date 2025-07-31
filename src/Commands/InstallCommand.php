@@ -4,12 +4,14 @@ namespace Iambateman\Speedrun\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use function Laravel\Prompts\text;
+
 use function Laravel\Prompts\confirm;
+use function Laravel\Prompts\text;
 
 class InstallCommand extends Command
 {
     protected $signature = 'speedrun:install {--force}';
+
     protected $description = 'Install and configure Speedrun package';
 
     public function handle(): int
@@ -18,41 +20,41 @@ class InstallCommand extends Command
         $this->newLine();
 
         // Check if already installed
-        if (config('speedrun.installed', false) && !$this->option('force')) {
+        if (config('speedrun.installed', false) && ! $this->option('force')) {
             $this->warn('Speedrun is already installed. Use --force to reinstall.');
+
             return Command::SUCCESS;
         }
 
         // Get directory preferences
         $this->info('📁 Configure your feature directories:');
-        
+
         $defaultBase = '_docs';
         $baseDir = text(
             label: 'Base directory for features',
             default: $defaultBase,
-            hint: 'This will contain your wip/, features/, and archive/ subdirectories'
+            hint: 'This will contain your wip/ and features/ subdirectories'
         );
 
-        $wipDir = $baseDir . '/wip';
-        $featuresDir = $baseDir . '/features';
-        $archiveDir = $baseDir . '/archive';
+        $wipDir = $baseDir.'/wip';
+        $featuresDir = $baseDir.'/features';
 
         $this->line("  📝 Work-in-progress: {$wipDir}");
         $this->line("  ✅ Completed features: {$featuresDir}");
-        $this->line("  📦 Archived features: {$archiveDir}");
         $this->newLine();
 
-        if (!confirm('Create these directories and install Speedrun?', true)) {
+        if (! confirm('Create these directories and install Speedrun?', true)) {
             $this->info('Installation cancelled.');
+
             return Command::SUCCESS;
         }
 
         // Create directories
         $this->info('Creating directories...');
-        $directories = [$wipDir, $featuresDir, $archiveDir];
-        
+        $directories = [$wipDir, $featuresDir];
+
         foreach ($directories as $dir) {
-            if (!File::exists($dir)) {
+            if (! File::exists($dir)) {
                 File::makeDirectory($dir, 0755, true);
                 $this->line("  ✅ Created: {$dir}");
             } else {
@@ -65,30 +67,18 @@ class InstallCommand extends Command
         $this->call('vendor:publish', [
             '--provider' => 'Iambateman\Speedrun\SpeedrunServiceProvider',
             '--tag' => 'speedrun-config',
-            '--force' => $this->option('force')
+            '--force' => $this->option('force'),
         ]);
 
         // Update configuration with user preferences
         $configPath = config_path('speedrun.php');
         if (File::exists($configPath)) {
             $config = File::get($configPath);
-            
-            // Update the directories configuration
+
+            // Update the base directory configuration
             $config = preg_replace(
-                "/('wip' => env\('SPEEDRUN_WIP_DIR', ')[^']*('\),)/",
-                "$1{$wipDir}$2",
-                $config
-            );
-            
-            $config = preg_replace(
-                "/('completed' => env\('SPEEDRUN_COMPLETED_DIR', ')[^']*('\),)/",
-                "$1{$featuresDir}$2",
-                $config
-            );
-            
-            $config = preg_replace(
-                "/('archive' => env\('SPEEDRUN_ARCHIVE_DIR', ')[^']*('\),)/",
-                "$1{$archiveDir}$2",
+                "/('directory' => env\('SPEEDRUN_DIR', ')[^']*('\),)/",
+                "$1{$baseDir}$2",
                 $config
             );
 
@@ -108,8 +98,11 @@ class InstallCommand extends Command
         $this->call('vendor:publish', [
             '--provider' => 'Iambateman\Speedrun\SpeedrunServiceProvider',
             '--tag' => 'speedrun-claude',
-            '--force' => $this->option('force')
+            '--force' => $this->option('force'),
         ]);
+
+        // Update CLAUDE.md with Speedrun information
+        $this->updateClaudeMd($baseDir);
 
         $this->newLine();
         $this->info('🎉 Speedrun installation complete!');
@@ -128,5 +121,56 @@ class InstallCommand extends Command
         }
 
         return Command::SUCCESS;
+    }
+
+    private function updateClaudeMd(string $baseDir): void
+    {
+        $this->info('Updating CLAUDE.md with Speedrun information...');
+        
+        $claudeMdPath = base_path('CLAUDE.md');
+        $speedrunNote = $this->getSpeedrunClaudeNote($baseDir);
+        
+        if (File::exists($claudeMdPath)) {
+            $content = File::get($claudeMdPath);
+            
+            // Check if Speedrun section already exists
+            if (!str_contains($content, '## Speedrun Feature Management')) {
+                // Append to existing CLAUDE.md
+                $content .= "\n\n" . $speedrunNote;
+                File::put($claudeMdPath, $content);
+                $this->line('  ✅ Added Speedrun information to existing CLAUDE.md');
+            } else {
+                $this->line('  ℹ️  Speedrun information already exists in CLAUDE.md');
+            }
+        } else {
+            // Create new CLAUDE.md
+            File::put($claudeMdPath, $speedrunNote);
+            $this->line('  ✅ Created CLAUDE.md with Speedrun information');
+        }
+    }
+
+    private function getSpeedrunClaudeNote(string $baseDir): string
+    {
+        return "## Speedrun Feature Management
+
+This project uses the Speedrun package for feature management and documentation.
+
+### Feature Documentation Location
+Feature documentation is stored in: `{$baseDir}/`
+- `{$baseDir}/wip/` - Work-in-progress features
+- `{$baseDir}/features/` - Completed features 
+
+### AI Assistant Guidelines
+For significant code efforts, you should:
+
+1. **Check existing features first** - Before starting any major development work, search the feature directories above to see if relevant documentation already exists
+2. **Look for context** - Feature files contain valuable context including:
+   - Requirements and specifications
+   - Technical decisions and rationale
+   - Code file paths and relationships
+   - Test coverage information
+   - Implementation notes and gotchas
+
+This helps maintain consistency and prevents duplicate work by leveraging existing feature knowledge.";
     }
 }

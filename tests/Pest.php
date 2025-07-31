@@ -16,9 +16,10 @@ expect()->extend('toBeInPhase', function (string $phase) {
 expect()->extend('toHaveFeatureStructure', function () {
     $path = $this->value;
     expect(file_exists($path))->toBeTrue("Feature directory should exist: {$path}");
-    expect(file_exists($path . '/planning'))->toBeTrue("Planning directory should exist");
-    expect(file_exists($path . '/research'))->toBeTrue("Research directory should exist");
-    expect(file_exists($path . '/assets'))->toBeTrue("Assets directory should exist");
+    expect(file_exists($path.'/planning'))->toBeTrue('Planning directory should exist');
+    expect(file_exists($path.'/research'))->toBeTrue('Research directory should exist');
+    expect(file_exists($path.'/assets'))->toBeTrue('Assets directory should exist');
+
     return $this;
 });
 
@@ -34,6 +35,6 @@ function createMockFeature(string $name = 'test-feature'): object
         'lastUpdated' => now(),
         'testPaths' => [],
         'codePaths' => [],
-        'artifacts' => []
+        'artifacts' => [],
     ];
 }
