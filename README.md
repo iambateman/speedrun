@@ -1,11 +1,11 @@
-# Build your Laravel app with Claude Coe using `/feature`
+# Build your Laravel app with Claude Code using `/feature`
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/iambateman/speedrun.svg?style=flat-square)](https://packagist.org/packages/iambateman/speedrun)
 [![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/iambateman/speedrun/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/iambateman/speedrun/actions?query=workflow%3Arun-tests+branch%3Amain)
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/iambateman/speedrun/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/iambateman/speedrun/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/iambateman/speedrun.svg?style=flat-square)](https://packagist.org/packages/iambateman/speedrun)
 
-Speedrun helps developers use Claude Code to (1) generate new features and (2) update existing features inside a Laravel project.
+Speedrun helps Laravel developers use Claude Code to generate new features or update existing features inside a Laravel project.
 
 ## Installation
 
@@ -14,7 +14,7 @@ composer require iambateman/speedrun
 php artisan speedrun:install
 ```
 ## Alpha warning
-This is *alpha* work which is actively being adjusted. Right now, it feels a little slower than it should...like the subagents are doing more work than I want them to do. 
+This is *alpha* work which is actively being adjusted. Right now, it feels a little slower than it should...like the subagents are doing more work than I want them to do. Use at your own risk.
 
 ## Usage
 1. In terminal, type `claude` to open Claude Code.
