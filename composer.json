@@ -1,6 +1,6 @@
 {
     "name": "iambateman/speedrun",
-    "description": "A GPT-powered tool for Laravel apps.",
+    "description": "A Claude Code powered tool for Laravel apps.",
     "keywords": [
         "iambateman",
         "laravel",
