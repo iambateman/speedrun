@@ -4,7 +4,10 @@
       "Bash(mkdir:*)",
       "Bash(vendor/bin/pest:*)",
       "Bash(php:*)",
-      "Bash(vendor/bin/pint:*)"
+      "Bash(vendor/bin/pint:*)",
+      "Bash(\"/Users/stephenbateman/Library/Application Support/Herd/bin/php\" /Users/stephenbateman/web/speedrun/vendor/phpunit/phpunit/phpunit --configuration /Users/stephenbateman/web/speedrun/phpunit.xml.dist --filter FeatureInitCommandTest --test-suffix FeatureInitCommandTest.php /Users/stephenbateman/web/speedrun/tests/Feature/Commands --teamcity)",
+      "Bash(\"/Users/stephenbateman/Library/Application Support/Herd/bin/php\" /Users/stephenbateman/web/speedrun/vendor/phpunit/phpunit/phpunit --configuration /Users/stephenbateman/web/speedrun/phpunit.xml.dist --filter \"it_creates_feature_directory_and_markdown_file\" tests/Feature/Commands/FeatureInitCommandTest.php)",
+      "Bash(\"/Users/stephenbateman/Library/Application Support/Herd/bin/php\" /Users/stephenbateman/web/speedrun/vendor/phpunit/phpunit/phpunit --configuration /Users/stephenbateman/web/speedrun/phpunit.xml.dist --filter \"it_fails_when_directory_already_exists\" tests/Feature/Commands/FeatureInitCommandTest.php)"
     ],
     "deny": []
   }

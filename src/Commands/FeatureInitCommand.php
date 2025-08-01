@@ -39,6 +39,10 @@ class FeatureInitCommand extends Command
         
         // Create the feature markdown file
         $markdownPath = $this->createFeatureMarkdown($slug, $featurePath);
+        
+        if (empty($markdownPath)) {
+            return Command::FAILURE;
+        }
 
         $this->info("✅ Feature '{$slug}' initialized successfully!");
         $this->line("📁 Feature directory: {$featurePath}");
@@ -96,6 +100,12 @@ class FeatureInitCommand extends Command
 
         // Load the stub content
         $stubPath = __DIR__ . '/../../resources/stubs/feature-stub.md';
+        
+        if (!File::exists($stubPath)) {
+            $this->error("❌ Feature stub file not found at: {$stubPath}");
+            return '';
+        }
+        
         $stubContent = File::get($stubPath);
 
         // Replace the placeholder with the actual slug
@@ -124,12 +134,26 @@ class FeatureInitCommand extends Command
 
     private function getWipDirectory(): string
     {
-        return base_path(config('speedrun.directory', '_docs') . '/wip');
+        $directory = config('speedrun.directory', '_docs');
+        
+        // If the directory is already absolute, use it as-is
+        if (str_starts_with($directory, '/')) {
+            return $directory . '/wip';
+        }
+        
+        return base_path($directory . '/wip');
     }
 
     private function getCompletedDirectory(): string
     {
-        return base_path(config('speedrun.directory', '_docs') . '/features');
+        $directory = config('speedrun.directory', '_docs');
+        
+        // If the directory is already absolute, use it as-is
+        if (str_starts_with($directory, '/')) {
+            return $directory . '/features';
+        }
+        
+        return base_path($directory . '/features');
     }
 
 

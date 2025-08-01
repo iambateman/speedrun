@@ -43,9 +43,8 @@ class TestCase extends Orchestra
         // Initialize test base path early
         $this->testBasePath = sys_get_temp_dir().'/speedrun-features-test-'.uniqid();
 
-        // Configure test directories for Features package
-        $app['config']->set('speedrun.features.directories.wip', $this->testBasePath.'/wip');
-        $app['config']->set('speedrun.features.directories.completed', $this->testBasePath.'/features');
+        // Configure test directories for Speedrun package
+        $app['config']->set('speedrun.directory', $this->testBasePath);
 
         // Configure test settings
         $app['config']->set('speedrun.installed', true); // Mark as installed for tests
