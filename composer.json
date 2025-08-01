@@ -1,6 +1,6 @@
 {
     "name": "iambateman/speedrun",
-    "description": "A Claude Code powered tool for Laravel apps.",
+    "description": "A Claude Code powered tool for Laravel apps to build features by typing /feature.",
     "keywords": [
         "iambateman",
         "laravel",
