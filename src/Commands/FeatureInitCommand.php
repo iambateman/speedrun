@@ -95,7 +95,7 @@ class FeatureInitCommand extends Command
         }
 
         // Load the stub content
-        $stubPath = __DIR__ . '/../../resources/stubs/feature.md';
+        $stubPath = __DIR__ . '/../../resources/stubs/feature-stub.md';
         $stubContent = File::get($stubPath);
 
         // Replace the placeholder with the actual slug

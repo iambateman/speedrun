@@ -5,7 +5,7 @@
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/iambateman/speedrun/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/iambateman/speedrun/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/iambateman/speedrun.svg?style=flat-square)](https://packagist.org/packages/iambateman/speedrun)
 
-Instead of typing `php artisan make:model Keyword -m`, use Speedrun to remember the syntax for you. Just ask for what you want and we will use GPT to figure it out!
+Speedrun helps developers use Claude Code to (1) generate new features and (2) update existing features inside a Laravel project.
 
 ## Installation
 
@@ -13,60 +13,29 @@ Instead of typing `php artisan make:model Keyword -m`, use Speedrun to remember 
 composer require iambateman/speedrun
 ```
 
-```dotenv
-# Set an OpenAI API Key in your .env
-SPEEDRUN_OPENAI_API_KEY=sk-...
-```
-
-Once installed, run `php artisan speedrun:demo` 
-
-
-
-
 ## Usage
+1. Open Claude Code
+2. type `/feature` with a brief description of the feature you want to make.
 
-```bash
-# Speedrun is a fancy Laravel command, so
-# out of the box, you would write...
+## Conceptual Framework
+As developers, we need visibility into every step in Claude's thinking to avoid runaway code generation. Otherwise, it's very likely that Claude will accidentally create code that doesn't work. This package enforces clear guidelines for Claude to keep the developer in the "driver's seat" and reduce the time spent fixing broken code.
 
-php artisan speedrun how many articles are there
+This framework is adapted from Anthropic's recommended best practices for working with agents.
 
-# But if you alias it to `sr`, you get...
+#### START
+To start, call `/feature` inside of Claude Code to create a new feature folder. This kicks off a four-step process:
 
-sr how many articles are there
+#### (1) DISCOVER
+Claude asks the developer to write what they know about the feature. Then, Claude will do it's own discovery.
 
-# You can write the worst Eloquent queries ever
-sr "query family(12)->members get name"
+#### (2) PLAN
+Claude will create working documents inside the feature folder with sample code which will eventually go into the app. This is a nice "staging" setup, which gives the dev an opportunity to easily scan through many documents in one place.
 
+#### (3) EXECUTE
+Claude will use the plan to incorporate the feature into the app. It will run tests, too.
 
-```
-
-## Example commands to try
-I was blown away the first time I tried these...it's wild.
-```bash
-# COMPOSER REQUIRE
-sr install laravel excel
-sr install filament
-
-# PHP ARTISAN
-sr make keyword model with migration and factory
-sr start queue
-
-# CUSTOM APP COMMANDS (contextual to your app)
-sr generate sitemap
-sr write articles for city 2
-
-# QUERY YOUR DATABASE (contextual, as well)
-sr when did the newest user sign up
-sr how many articles are attached to city 2
-
-```
-
-## Testing
-
-```bash
-Tests are coming soon. Don't judge me, I have a six-month old baby.
-```
+#### (4) CLEAN
+Claude will ask you and then delete the feature folder. This is important because unused sample code makes it hard for Claude to search the project, and that sample code becomes stale.
 
 ## Changelog
 
@@ -83,15 +52,7 @@ Please review [our security policy](../../security/policy) on how to report secu
 ## Credits
 
 - Speedrun: [iambateman](https://github.com/iambateman)
-- None of this would be possible without the wonderful work of so many people on Artisan, Tinker, Composer, and Laravel in general. Thank you for what you do.
 - [All Contributors](../../contributors)
-
-## Config
-Right now there is very limited config, but you can publish if you want:
-```bash
-# (Optionally) publish config.
-php artisan vendor:publish --tag="speedrun-config"
-```
 
 ## License
 

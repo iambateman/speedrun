@@ -70,6 +70,11 @@ class SpeedrunServiceProvider extends PackageServiceProvider
             __DIR__.'/../resources/claude-commands' => base_path('.claude/commands'),
         ], 'speedrun-claude');
 
+        // Publish Claude agent files to .claude/agents
+        $this->publishes([
+            __DIR__.'/../resources/claude-agents' => base_path('.claude/agents'),
+        ], 'speedrun-agents');
+
         // Publish config with specific tag
         $this->publishes([
             __DIR__.'/../config/speedrun.php' => config_path('speedrun.php'),

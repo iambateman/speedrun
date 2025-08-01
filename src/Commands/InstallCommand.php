@@ -101,6 +101,14 @@ class InstallCommand extends Command
             '--force' => $this->option('force'),
         ]);
 
+        // Publish Claude agents
+        $this->info('Publishing Claude Code agents...');
+        $this->call('vendor:publish', [
+            '--provider' => 'Iambateman\Speedrun\SpeedrunServiceProvider',
+            '--tag' => 'speedrun-agents',
+            '--force' => $this->option('force'),
+        ]);
+
         // Update CLAUDE.md with Speedrun information
         $this->updateClaudeMd($baseDir);
 
